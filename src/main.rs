@@ -29,26 +29,33 @@ pub fn main() {
     let mut settings = config::Config::default();
 
     settings
-        .merge(config::File::with_name("Comet"))
+        .merge(config::File::with_name(matches.value_of("config_profile").unwrap()))
         .unwrap();
 
     let config = settings
         .try_into::<Config>()
         .unwrap();
 
+    let date_fmt = config.logging.date_fmt.clone();
+
     Builder::new()
-        .format(|buf, record| {
+        .format(move |buf, record| {
             writeln!(buf,
                      "{} [{}] - {}",
-                     Local::now().format("%Y-%m-%d %H:%M:%S"),
+                     Local::now().format(&date_fmt),
                      record.level(),
                      record.args()
             )
         })
-        .filter(None, LevelFilter::Info)
+        .filter(None, match config.logging.level.as_ref() {
+            "Info" => LevelFilter::Info,
+            "Error" => LevelFilter::Error,
+            "Debug" => LevelFilter::Debug,
+            "Warn" => LevelFilter::Warn,
+
+            _ => LevelFilter::Trace
+        })
         .init();
 
     debug!(target: "boot", "Comet is running");
-
-    println!("{:?}", config);
 }
