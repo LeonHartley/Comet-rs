@@ -1,0 +1,9 @@
+[database]
+connection_string = "mysql://dbuser:123123@localhost/cometsrv"
+
+[game]
+host = "0.0.0.0"
+port = 30000
+
+[logging]
+date_fmt =

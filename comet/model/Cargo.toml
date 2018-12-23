@@ -1,0 +1,8 @@
+[package]
+name = "model"
+version = "0.1.0"
+authors = ["Leon Hartley <lhartley97@gmail.com>"]
+
+[dependencies]
+serde = "1.0"
+serde_derive = "1.0"
