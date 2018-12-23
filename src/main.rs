@@ -1,13 +1,14 @@
 extern crate db;
 extern crate model;
-extern crate clap;
-extern crate config;
 extern crate server;
 
 #[macro_use]
 extern crate log;
 extern crate chrono;
 extern crate env_logger;
+extern crate config;
+extern crate clap;
+extern crate actix;
 
 use clap::Arg;
 use db::ctx::DbContext;
@@ -59,8 +60,12 @@ pub fn main() {
         })
         .init();
 
+    let system = actix::System::new("comet-server");
+
     Server::new(&config.game)
         .start();
 
-    debug!(target: "boot", "Comet is running");
+    debug!(target: "boot", "Comet is starting");
+
+    let _ = system.run();
 }
