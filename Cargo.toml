@@ -12,5 +12,6 @@ log = "0.4.6"
 env_logger = "0.6.0"
 chrono = "0.4.6"
 
+server = { path = "comet/server" }
 db = { path = "comet/db" }
 model = { path = "comet/model" }

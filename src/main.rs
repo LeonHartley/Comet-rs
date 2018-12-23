@@ -2,6 +2,7 @@ extern crate db;
 extern crate model;
 extern crate clap;
 extern crate config;
+extern crate server;
 
 #[macro_use]
 extern crate log;
@@ -15,6 +16,7 @@ use model::config::Config;
 use env_logger::Builder;
 use log::LevelFilter;
 use chrono::Local;
+use server::Server;
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")
@@ -56,6 +58,9 @@ pub fn main() {
             _ => LevelFilter::Trace
         })
         .init();
+
+    Server::new(&config.game)
+        .start();
 
     debug!(target: "boot", "Comet is running");
 }
