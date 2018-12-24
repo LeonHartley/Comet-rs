@@ -59,8 +59,6 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
             IncomingMessage::Event(mut buffer) => {
                 self.handler.handle(buffer.id, &mut buffer, &self);
             }
-
-            _ => {println!("yo");}
         }
     }
 }

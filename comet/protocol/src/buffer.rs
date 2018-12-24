@@ -26,7 +26,29 @@ impl Buffer {
     }
 
     pub fn read_i32(&mut self) -> i32 {
-        BigEndian::read_i32(&self.inner.as_ref())
+        let i = BigEndian::read_i32(&self.inner.as_ref());
+
+        self.inner.advance(4);
+
+        i
+    }
+
+    pub fn read_i16(&mut self) -> i16 {
+        let i = BigEndian::read_i16(&self.inner.as_ref());
+
+        self.inner.advance(2);
+
+        i
+    }
+
+    pub fn read_string(&mut self) -> Option<String> {
+        let len = self.read_i16() as usize;
+        let buf = self.inner.split_to(len);
+
+        match String::from_utf8(buf.as_ref().to_vec()) {
+            Ok(s) => Some(s),
+            _ => None
+        }
     }
 
     pub fn bytes(&self) -> &[u8] {
