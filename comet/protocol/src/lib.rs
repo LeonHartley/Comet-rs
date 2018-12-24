@@ -1,7 +1,5 @@
-pub struct LoginRequest {
-    pub sso_ticket: String
-}
+extern crate bytes;
+extern crate byteorder;
 
-pub enum MessageEvent {
-    Login(LoginRequest)
-}
+pub mod request;
+

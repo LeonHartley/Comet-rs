@@ -13,7 +13,6 @@ impl Actor for TcpServer {
 #[derive(Message)]
 struct TcpConnect(TcpStream);
 
-/// Handle stream of TcpStream's
 impl Handler<TcpConnect> for TcpServer {
     type Result = ();
 

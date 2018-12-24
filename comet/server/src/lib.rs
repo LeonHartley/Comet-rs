@@ -1,5 +1,11 @@
 extern crate model;
 extern crate actix;
+extern crate protocol;
+extern crate bytes;
+extern crate byteorder;
+extern crate tokio_io;
+
+mod codec;
 
 use model::config::{Game};
 use actix::{Context, Actor, Arbiter, msgs};
