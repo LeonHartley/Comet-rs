@@ -14,13 +14,13 @@ use session::ServerSession;
 use futures::Stream;
 use std::str::FromStr;
 
-struct TcpServer {
+pub struct TcpServer {
     server: Addr<Server>
 }
 
 impl TcpServer {
-    pub fn new(host: &str, port: u16, server: Addr<Server>) {
-        let addr = SocketAddr::from_str(&format!("{}:{}", host, port)).unwrap();
+    pub fn new(addr: String, server: Addr<Server>) {
+        let addr = SocketAddr::from_str(&addr).unwrap();
         let listener = TcpListener::bind(&addr).unwrap();
 
         TcpServer::create(|ctx| {
@@ -44,16 +44,16 @@ impl Actor for TcpServer {
 #[derive(Message)]
 struct TcpConnect(TcpStream);
 
-/// Handle stream of TcpStream's
 impl Handler<TcpConnect> for TcpServer {
     type Result = ();
 
     fn handle(&mut self, msg: TcpConnect, _: &mut Context<Self>) {
         let server = self.server.clone();
+        println!("lol");
         ServerSession::create(|ctx| {
             let (r, w) = msg.0.split();
-            ServerSession::add_stream(FramedRead::new(r, GameCodec), ctx);
 
+            ServerSession::add_stream(FramedRead::new(r, GameCodec), ctx);
             ServerSession::new(1, server, actix::io::FramedWrite::new(w, GameCodec, ctx))
         });
     }
