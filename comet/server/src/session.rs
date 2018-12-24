@@ -1,4 +1,9 @@
-use GameCodec;
+use codec::GameCodec;
+use actix::Addr;
+use actix_web::actix;
+use tokio_io::io::WriteHalf;
+use tokio_tcp::TcpStream;
+use Server;
 
 pub enum SessionStatus {
     Idle,
@@ -10,7 +15,7 @@ type NetworkWriter = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 pub struct ServerSession {
     id: usize,
     server: Addr<Server>,
-    status: SessionState,
+    status: SessionStatus,
     writer: NetworkWriter
 }
 

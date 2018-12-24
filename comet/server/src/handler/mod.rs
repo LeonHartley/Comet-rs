@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use protocol::buffer::Buffer;
-use Session;
+use session::ServerSession;
+
+mod handshake;
 
 type HandlerFunc = Fn(&mut Buffer, &ServerSession);
 type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
@@ -28,7 +30,7 @@ impl MessageHandler {
 }
 
 fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
-    map.insert(CLIENT_VERSION_EVENT, Box::new(client_version_handler));
+    map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
 
     map
 }

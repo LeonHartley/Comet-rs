@@ -1,4 +1,6 @@
+use protocol::buffer::Buffer;
+use session::ServerSession;
 
-fn client_version_handler(buf: &mut Buffer, session: &ServerSession) {
+pub fn client_version_handler(buf: &mut Buffer, session: &ServerSession) {
     // handle msg
 }

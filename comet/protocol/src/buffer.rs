@@ -14,4 +14,8 @@ impl Buffer {
             inner
         }
     }
+
+    pub fn read_i32(&mut self) -> i32 {
+        1231213
+    }
 }

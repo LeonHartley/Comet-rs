@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, ByteOrder};
-use bytes::{BufMut, BytesMut};
+use bytes::{BytesMut};
 use tokio_io::codec::{Decoder, Encoder};
 use std::io;
 use std::collections::HashMap;
@@ -28,6 +28,15 @@ impl Decoder for GameCodec {
         } else {
             Ok(None)
         }
+    }
+}
+
+impl Encoder for GameCodec {
+    type Item = u16;
+    type Error = io::Error;
+
+    fn encode(&mut self, item: <Self as Encoder>::Item, dst: &'_ mut BytesMut) -> Result<(), <Self as Encoder>::Error> {
+        unimplemented!()
     }
 }
 
