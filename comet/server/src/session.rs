@@ -47,6 +47,7 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
         match item {
             IncomingMessage::Policy => {
                 // send policy
+                println!("got policy request");
             }
 
             IncomingMessage::Event(buffer) => {

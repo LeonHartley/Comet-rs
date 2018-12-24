@@ -19,6 +19,8 @@ impl Decoder for GameCodec {
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         if src.first() == Some(&b'<') {
+            src.clear();
+
             return Ok(Some(IncomingMessage::Policy));
         }
 
