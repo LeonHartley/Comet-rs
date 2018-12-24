@@ -1,6 +1,6 @@
 use actix::Addr;
 
-use Server;
+use ;
 
 struct TcpServer {
     server: Addr<Server>

@@ -3,13 +3,14 @@ use bytes::{BytesMut};
 use tokio_io::codec::{Decoder, Encoder};
 use std::io;
 use std::collections::HashMap;
+use protocol::buffer::Buffer;
 
 pub struct GameCodec {
     decoders: HashMap<i16, String>
 }
 
 impl Decoder for GameCodec {
-    type Item = u16;
+    type Item = Buffer;
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
@@ -32,17 +33,17 @@ impl Decoder for GameCodec {
 }
 
 impl Encoder for GameCodec {
-    type Item = u16;
+    type Item = Buffer;
     type Error = io::Error;
 
-    fn encode(&mut self, item: <Self as Encoder>::Item, dst: &'_ mut BytesMut) -> Result<(), <Self as Encoder>::Error> {
+    fn encode(&mut self, item: Buffer, dst: &mut BytesMut) -> Result<(), <Self as Encoder>::Error> {
         unimplemented!()
     }
 }
 
-fn parse_request(buf: BytesMut) -> Option<u16> {
-    let id = BigEndian::read_u16(buf.as_ref());
+fn parse_request(buf: BytesMut) -> Option<Buffer> {
+    let id = BigEndian::read_i16(buf.as_ref());
     println!("reading msg with id {}", id);
 
-    Some(id)
+    Some(Buffer::new(id, buf.len(), buf))
 }

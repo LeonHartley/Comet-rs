@@ -4,6 +4,11 @@ use actix_web::actix;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
 use Server;
+use protocol::buffer::Buffer;
+use actix::StreamHandler;
+use std::io;
+use actix::Context;
+use core::Server;
 
 pub enum SessionStatus {
     Idle,
@@ -27,5 +32,13 @@ impl ServerSession {
             status: SessionStatus::Idle,
             writer
         }
+    }
+}
+
+
+
+impl StreamHandler<Buffer, io::Error> for ServerSession {
+    fn handle(&mut self, item: Buffer, ctx: &mut Context<Self>) {
+        println!("buf id: {}", item.id);
     }
 }

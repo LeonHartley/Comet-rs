@@ -1,21 +1,19 @@
 use bytes::BytesMut;
 
 pub struct Buffer {
+    pub id: i16,
+    pub size: usize,
     index: usize,
-    size: usize,
     inner: BytesMut
 }
 
 impl Buffer {
-    pub fn new(size: usize, inner: BytesMut) -> Buffer {
+    pub fn new(id: i16, size: usize, inner: BytesMut) -> Buffer {
         Buffer {
-            index: 0,
+            id,
+            index: 2,
             size,
             inner
         }
-    }
-
-    pub fn read_i32(&mut self) -> i32 {
-        1231213
     }
 }
