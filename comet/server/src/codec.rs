@@ -2,7 +2,6 @@ use byteorder::{BigEndian, ByteOrder};
 use bytes::{BytesMut, BufMut};
 use tokio_io::codec::{Decoder, Encoder};
 use std::io;
-use std::collections::HashMap;
 use protocol::buffer::Buffer;
 use std::option::Option;
 
@@ -34,7 +33,7 @@ impl Decoder for GameCodec {
 
         if src.len() >= size + 4 {
             src.split_to(4);
-            let mut buf = src.split_to(size);
+            let buf = src.split_to(size);
 
             src.clear();
 

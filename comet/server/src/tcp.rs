@@ -3,7 +3,6 @@ use core::Server;
 use actix::Actor;
 use actix::Context;
 use actix::prelude::*;
-use tokio_io::io::WriteHalf;
 use tokio_io::AsyncRead;
 use tokio_tcp::{TcpListener, TcpStream};
 use std::net::SocketAddr;
@@ -53,7 +52,7 @@ impl Handler<TcpConnect> for TcpServer {
             let (r, w) = msg.0.split();
 
             ServerSession::add_stream(FramedRead::new(r, GameCodec), ctx);
-            ServerSession::new(1, server, actix::io::FramedWrite::new(w, GameCodec, ctx))
+            ServerSession::new(server, actix::io::FramedWrite::new(w, GameCodec, ctx))
         });
     }
 }
