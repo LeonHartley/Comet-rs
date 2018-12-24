@@ -9,10 +9,11 @@ use std::io;
 use actix::Context;
 use core::Server;
 use actix::Actor;
+use codec::IncomingMessage;
 
 pub enum SessionStatus {
     Idle,
-    Active
+    Active,
 }
 
 type NetworkWriter = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
@@ -21,7 +22,7 @@ pub struct ServerSession {
     id: usize,
     server: Addr<Server>,
     status: SessionStatus,
-    writer: NetworkWriter
+    writer: NetworkWriter,
 }
 
 impl ServerSession {
@@ -30,7 +31,7 @@ impl ServerSession {
             id,
             server,
             status: SessionStatus::Idle,
-            writer
+            writer,
         }
     }
 }
@@ -39,11 +40,20 @@ impl actix::io::WriteHandler<io::Error> for ServerSession {}
 
 impl Actor for ServerSession {
     type Context = Context<Self>;
-
 }
 
-impl StreamHandler<Buffer, io::Error> for ServerSession {
-    fn handle(&mut self, item: Buffer, ctx: &mut Context<Self>) {
-        println!("buf id: {}", item.id);
+impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
+    fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
+        match item {
+            IncomingMessage::Policy => {
+                // send policy
+            }
+
+            IncomingMessage::Event(buffer) => {
+                println!("buf id: {}", buffer.id);
+            }
+
+            _ => {}
+        }
     }
 }

@@ -4,14 +4,24 @@ use tokio_io::codec::{Decoder, Encoder};
 use std::io;
 use std::collections::HashMap;
 use protocol::buffer::Buffer;
+use std::option::Option;
 
 pub struct GameCodec;
 
+pub enum IncomingMessage {
+    Policy,
+    Event(Buffer)
+}
+
 impl Decoder for GameCodec {
-    type Item = Buffer;
+    type Item = IncomingMessage;
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        if src.first() == Some(&b'<') {
+            return Ok(Some(IncomingMessage::Policy));
+        }
+
         let size = {
             if src.len() < 2 {
                 return Ok(None);
@@ -23,7 +33,7 @@ impl Decoder for GameCodec {
         if src.len() >= size + 2 {
             src.split_to(2);
 
-            Ok(Some(parse_request(src.split_to(size)).unwrap()))
+            Ok(Some(IncomingMessage::Event(parse_request(src.split_to(size)).unwrap())))
         } else {
             Ok(None)
         }
