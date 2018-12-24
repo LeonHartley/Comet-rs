@@ -62,7 +62,5 @@ fn parse_request(mut buf: BytesMut) -> Option<Buffer> {
     let id = BigEndian::read_i16(buf.as_ref());
     buf.advance(2);
 
-    println!("reading msg with id {}", id);
-
     Some(Buffer::new(id, buf.len(), buf))
 }

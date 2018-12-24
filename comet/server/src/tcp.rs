@@ -49,7 +49,6 @@ impl Handler<TcpConnect> for TcpServer {
 
     fn handle(&mut self, msg: TcpConnect, _: &mut Context<Self>) {
         let server = self.server.clone();
-        println!("lol");
         ServerSession::create(|ctx| {
             let (r, w) = msg.0.split();
 

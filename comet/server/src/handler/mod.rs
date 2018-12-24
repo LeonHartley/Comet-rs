@@ -14,22 +14,24 @@ pub struct MessageHandler {
 }
 
 impl MessageHandler {
-    fn new() -> MessageHandler {
+    pub fn new() -> MessageHandler {
         MessageHandler {
             handlers: register_message_handlers(HashMap::new())
         }
     }
 
-    fn handle(&self, header: i16, buffer: &mut Buffer, session: &ServerSession) {
-        let handler = self.handlers.get(&header)
-            .unwrap()
-            .as_ref();
+    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: &ServerSession) {
+        let handler = match self.handlers.get(&header) {
+            Some(handler) => handler.as_ref(),
+            None => return
+        };
 
         handler(buffer, session);
     }
 }
 
 fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
+    map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
     map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
 
     map

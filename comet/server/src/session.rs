@@ -13,28 +13,31 @@ use codec::IncomingMessage;
 use protocol::handshake::policy_file;
 use actix::ActorContext;
 use futures::{future};
+use handler::MessageHandler;
 
 pub enum SessionStatus {
     Idle,
     Active,
 }
 
-type NetworkWriter = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
+type NetworkStream = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 
 pub struct ServerSession {
     id: usize,
     server: Addr<Server>,
     status: SessionStatus,
-    writer: NetworkWriter,
+    stream: NetworkStream,
+    handler: MessageHandler
 }
 
 impl ServerSession {
-    pub fn new(id: usize, server: Addr<Server>, writer: NetworkWriter) -> Self {
+    pub fn new(id: usize, server: Addr<Server>, stream: NetworkStream) -> Self {
         Self {
             id,
             server,
             status: SessionStatus::Idle,
-            writer,
+            stream,
+            handler: MessageHandler::new()
         }
     }
 }
@@ -49,12 +52,12 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
     fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
         match item {
             IncomingMessage::Policy => {
-                self.writer.write(policy_file());
-                self.writer.close();
+                self.stream.write(policy_file());
+                self.stream.close();
             }
 
-            IncomingMessage::Event(buffer) => {
-                println!("buf id: {}", buffer.id);
+            IncomingMessage::Event(mut buffer) => {
+                self.handler.handle(buffer.id, &mut buffer, &self);
             }
 
             _ => {println!("yo");}
