@@ -10,6 +10,9 @@ use actix::Context;
 use core::Server;
 use actix::Actor;
 use codec::IncomingMessage;
+use protocol::handshake::policy_file;
+use actix::ActorContext;
+use futures::{future};
 
 pub enum SessionStatus {
     Idle,
@@ -46,15 +49,15 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
     fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
         match item {
             IncomingMessage::Policy => {
-                // send policy
-                println!("got policy request");
+                self.writer.write(policy_file());
+                self.writer.close();
             }
 
             IncomingMessage::Event(buffer) => {
                 println!("buf id: {}", buffer.id);
             }
 
-            _ => {}
+            _ => {println!("yo");}
         }
     }
 }

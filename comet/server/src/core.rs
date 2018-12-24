@@ -26,7 +26,6 @@ impl Server {
     pub fn start(&self) {
         let host = self.host.clone();
         let port = self.port;
-
         let addr = format!("{}:{}", &host, port);
 
         let server = Arbiter::start(move |_| Self { host, port });
