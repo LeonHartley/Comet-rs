@@ -5,9 +5,7 @@ use std::io;
 use std::collections::HashMap;
 use protocol::buffer::Buffer;
 
-pub struct GameCodec {
-    decoders: HashMap<i16, String>
-}
+pub struct GameCodec;
 
 impl Decoder for GameCodec {
     type Item = Buffer;

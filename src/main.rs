@@ -11,13 +11,12 @@ extern crate clap;
 extern crate actix;
 
 use clap::Arg;
-use db::ctx::DbContext;
 use std::io::Write;
 use model::config::Config;
 use env_logger::Builder;
 use log::LevelFilter;
 use chrono::Local;
-use server::Server;
+use server::core::Server;
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")

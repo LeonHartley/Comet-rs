@@ -1,10 +1,12 @@
 use bytes::BytesMut;
+use bytes::ByteOrder;
+use byteorder::BigEndian;
 
 pub struct Buffer {
     pub id: i16,
     pub size: usize,
     index: usize,
-    inner: BytesMut
+    inner: BytesMut,
 }
 
 impl Buffer {
@@ -13,7 +15,11 @@ impl Buffer {
             id,
             index: 2,
             size,
-            inner
+            inner,
         }
+    }
+
+    pub fn read_i32(&mut self) -> i32 {
+        BigEndian::read_i32(&self.inner.as_ref())
     }
 }
