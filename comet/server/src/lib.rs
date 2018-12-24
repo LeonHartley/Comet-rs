@@ -6,6 +6,7 @@ extern crate byteorder;
 extern crate tokio_io;
 
 mod codec;
+mod handler;
 
 use model::config::{Game};
 use actix::{Context, Actor, Arbiter, msgs};
