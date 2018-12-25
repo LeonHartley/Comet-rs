@@ -22,7 +22,7 @@ impl TcpServer {
         let addr = SocketAddr::from_str(&addr).unwrap();
         let listener = TcpListener::bind(&addr).unwrap();
 
-        TcpServer::create(|ctx| {
+        TcpServer::create(move |ctx| {
             ctx.add_message_stream(
                 listener
                     .incoming()
@@ -30,6 +30,7 @@ impl TcpServer {
                     .map(|s| TcpConnect(s)),
             );
 
+            info!(target: "io", "Server started on addr: {}", &addr);
             TcpServer { server }
         });
     }

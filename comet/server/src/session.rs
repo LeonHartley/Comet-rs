@@ -9,8 +9,12 @@ use actix::Context;
 use core::Server;
 use actix::Actor;
 use codec::IncomingMessage;
-use protocol::handshake::policy_file;
+use protocol::event::handshake::policy_file;
 use handler::MessageHandler;
+use protocol::event;
+use protocol::buffer::Buffer;
+use actix::Handler;
+use actix::prelude::*;
 
 pub enum SessionStatus {
     Idle,
@@ -35,6 +39,10 @@ impl ServerSession {
             handler: MessageHandler::new()
         }
     }
+
+    pub fn compose(&mut self, buf: Buffer) {
+        self.stream.write(buf);
+    }
 }
 
 impl actix::io::WriteHandler<io::Error> for ServerSession {}
@@ -44,16 +52,28 @@ impl Actor for ServerSession {
 }
 
 impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
-    fn handle(&mut self, item: IncomingMessage, _ctx: &mut Context<Self>) {
+    fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
         match item {
             IncomingMessage::Policy => {
-                self.stream.write(policy_file());
+                self.stream.write(event::handshake::policy_file());
                 self.stream.close();
             }
 
             IncomingMessage::Event(mut buffer) => {
-                self.handler.handle(buffer.id, &mut buffer, &self);
+                self.handler.handle(buffer.id, &mut buffer, ctx.address());
             }
         }
     }
 }
+
+#[derive(Message)]
+pub struct ComposeMessage(pub Buffer);
+
+impl Handler<ComposeMessage> for ServerSession {
+    type Result = ();
+
+    fn handle(&mut self, msg: ComposeMessage, _: &mut Context<Self>) {
+        self.stream.write(msg.0);
+    }
+}
+

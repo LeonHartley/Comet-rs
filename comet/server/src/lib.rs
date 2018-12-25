@@ -8,6 +8,9 @@ extern crate actix_web;
 extern crate tokio_tcp;
 extern crate futures;
 
+#[macro_use]
+extern crate log;
+
 pub mod codec;
 pub mod handler;
 pub mod session;

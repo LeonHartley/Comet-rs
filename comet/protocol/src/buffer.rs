@@ -1,4 +1,4 @@
-use bytes::BytesMut;
+use bytes::{BytesMut, BufMut};
 use bytes::ByteOrder;
 use byteorder::BigEndian;
 
@@ -6,6 +6,7 @@ pub struct Buffer {
     pub id: i16,
     pub size: usize,
     pub inner: BytesMut,
+    writer_index: i32,
 }
 
 impl Buffer {
@@ -14,6 +15,16 @@ impl Buffer {
             id,
             size,
             inner,
+            writer_index: 0,
+        }
+    }
+
+    pub fn empty(id: i16) -> Buffer {
+        Buffer {
+            id,
+            size: 1024,
+            inner: BytesMut::new(),
+            writer_index: 0,
         }
     }
 
@@ -21,7 +32,8 @@ impl Buffer {
         Buffer {
             id: 0,
             size: bytes.len(),
-            inner: BytesMut::from(bytes)
+            inner: BytesMut::from(bytes),
+            writer_index: 0,
         }
     }
 
@@ -49,6 +61,26 @@ impl Buffer {
             Ok(s) => Some(s),
             _ => None
         }
+    }
+
+    pub fn write_i32(&mut self, i: i32) {
+        self.inner.reserve(4);
+        self.inner.put_i32_be(i);
+    }
+
+    pub fn write_string(&mut self, s: String) {
+        self.inner.reserve(2 + s.len());
+        self.inner.put_i16_be(s.len() as i16);
+        self.inner.put_slice(s.as_bytes());
+    }
+
+    pub fn compose_to(&self, buf: &mut BytesMut) {
+        buf.reserve(6 + self.inner.len());
+        buf.put_i32_be((self.inner.len() as i32) + 2);
+        buf.put_i16_be(self.id);
+        buf.put_slice(self.inner.as_ref());
+
+        println!("length: {}", self.inner.len());
     }
 
     pub fn bytes(&self) -> &[u8] {

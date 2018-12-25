@@ -49,9 +49,17 @@ impl Encoder for GameCodec {
     type Error = io::Error;
 
     fn encode(&mut self, item: Buffer, dst: &mut BytesMut) -> Result<(), <Self as Encoder>::Error> {
-        let bytes = item.bytes();
-        dst.reserve(bytes.len());
-        dst.put_slice(bytes);
+        match item.id {
+            0 => {
+                let bytes = item.bytes();
+                dst.reserve(bytes.len());
+                dst.put_slice(bytes);
+            }
+
+            _ => {
+                item.compose_to(dst);
+            }
+        }
 
         Ok(())
     }

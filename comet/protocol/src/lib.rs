@@ -2,4 +2,5 @@ extern crate bytes;
 extern crate byteorder;
 
 pub mod buffer;
-pub mod handshake;
+pub mod event;
+pub mod composer;

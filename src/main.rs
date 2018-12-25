@@ -64,7 +64,7 @@ pub fn main() {
     Server::new(&config.game)
         .start();
 
-    debug!(target: "boot", "Comet is starting");
+    info!(target: "boot", "Comet is starting");
 
     let _ = system.run();
 }

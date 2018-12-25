@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use protocol::buffer::Buffer;
 use session::ServerSession;
+use actix::Context;
+use actix::Addr;
 
 mod handshake;
 
-type HandlerFunc = Fn(&mut Buffer, &ServerSession);
+type HandlerFunc = Fn(&mut Buffer, Addr<ServerSession>);
 type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
 
 const CLIENT_VERSION_EVENT: i16 = 4000;
@@ -21,10 +23,13 @@ impl MessageHandler {
         }
     }
 
-    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: &ServerSession) {
+    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: Addr<ServerSession>) {
         let handler = match self.handlers.get(&header) {
             Some(handler) => handler.as_ref(),
-            None => return
+            None => {
+                debug!(target: "io", "unhandled msg {}", header);
+                return;
+            }
         };
 
         handler(buffer, session);
