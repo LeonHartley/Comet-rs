@@ -15,6 +15,7 @@ use protocol::event;
 use protocol::buffer::Buffer;
 use actix::Handler;
 use actix::prelude::*;
+use protocol::buffer::StreamMessage;
 
 pub enum SessionStatus {
     Idle,
@@ -27,7 +28,7 @@ pub struct ServerSession {
     server: Addr<Server>,
     status: SessionStatus,
     stream: NetworkStream,
-    handler: MessageHandler
+    handler: MessageHandler,
 }
 
 impl ServerSession {
@@ -36,7 +37,7 @@ impl ServerSession {
             server,
             status: SessionStatus::Idle,
             stream,
-            handler: MessageHandler::new()
+            handler: MessageHandler::new(),
         }
     }
 
@@ -49,6 +50,26 @@ impl actix::io::WriteHandler<io::Error> for ServerSession {}
 
 impl Actor for ServerSession {
     type Context = Context<Self>;
+}
+
+impl Handler<StreamMessage> for ServerSession {
+    type Result = ();
+
+    fn handle(&mut self, msg: StreamMessage, _: &mut Context<Self>) {
+        match msg {
+            StreamMessage::Send(buf) => {
+                self.compose(buf);
+            }
+
+            StreamMessage::SendMultiple(buffers) => {
+                for buf in buffers.into_iter() {}
+            }
+
+            StreamMessage::Close => {
+                self.stream.close();
+            }
+        }
+    }
 }
 
 impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
@@ -65,15 +86,3 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
         }
     }
 }
-
-#[derive(Message)]
-pub struct ComposeMessage(pub Buffer);
-
-impl Handler<ComposeMessage> for ServerSession {
-    type Result = ();
-
-    fn handle(&mut self, msg: ComposeMessage, _: &mut Context<Self>) {
-        self.stream.write(msg.0);
-    }
-}
-

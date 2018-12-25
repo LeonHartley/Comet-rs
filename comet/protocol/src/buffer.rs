@@ -1,12 +1,19 @@
 use bytes::{BytesMut, BufMut};
 use bytes::ByteOrder;
 use byteorder::BigEndian;
+use actix::prelude::*;
+
+#[derive(Message)]
+pub enum StreamMessage {
+    Send(Buffer),
+    SendMultiple(Vec<Buffer>),
+    Close
+}
 
 pub struct Buffer {
     pub id: i16,
     pub size: usize,
-    pub inner: BytesMut,
-    writer_index: i32,
+    pub inner: BytesMut
 }
 
 impl Buffer {
@@ -14,8 +21,7 @@ impl Buffer {
         Buffer {
             id,
             size,
-            inner,
-            writer_index: 0,
+            inner
         }
     }
 
@@ -23,8 +29,7 @@ impl Buffer {
         Buffer {
             id,
             size: 1024,
-            inner: BytesMut::new(),
-            writer_index: 0,
+            inner: BytesMut::new()
         }
     }
 
@@ -32,8 +37,7 @@ impl Buffer {
         Buffer {
             id: 0,
             size: bytes.len(),
-            inner: BytesMut::from(bytes),
-            writer_index: 0,
+            inner: BytesMut::from(bytes)
         }
     }
 
@@ -79,8 +83,6 @@ impl Buffer {
         buf.put_i32_be((self.inner.len() as i32) + 2);
         buf.put_i16_be(self.id);
         buf.put_slice(self.inner.as_ref());
-
-        println!("length: {}", self.inner.len());
     }
 
     pub fn bytes(&self) -> &[u8] {

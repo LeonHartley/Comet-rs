@@ -1127,6 +1127,7 @@ dependencies = [
 name = "protocol"
 version = "0.1.0"
 dependencies = [
+ "actix 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "model 0.1.0",
