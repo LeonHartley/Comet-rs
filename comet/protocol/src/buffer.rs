@@ -6,14 +6,14 @@ use actix::prelude::*;
 #[derive(Message)]
 pub enum StreamMessage {
     Send(Buffer),
-    SendMultiple(Vec<Buffer>),
-    Close
+    BufferedSend(Vec<Buffer>),
+    Close,
 }
 
 pub struct Buffer {
     pub id: i16,
     pub size: usize,
-    pub inner: BytesMut
+    pub inner: BytesMut,
 }
 
 impl Buffer {
@@ -21,7 +21,7 @@ impl Buffer {
         Buffer {
             id,
             size,
-            inner
+            inner,
         }
     }
 
@@ -29,7 +29,7 @@ impl Buffer {
         Buffer {
             id,
             size: 1024,
-            inner: BytesMut::new()
+            inner: BytesMut::new(),
         }
     }
 
@@ -37,7 +37,7 @@ impl Buffer {
         Buffer {
             id: 0,
             size: bytes.len(),
-            inner: BytesMut::from(bytes)
+            inner: BytesMut::from(bytes),
         }
     }
 

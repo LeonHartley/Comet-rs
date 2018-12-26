@@ -61,8 +61,10 @@ impl Handler<StreamMessage> for ServerSession {
                 self.compose(buf);
             }
 
-            StreamMessage::SendMultiple(buffers) => {
-                for buf in buffers.into_iter() {}
+            StreamMessage::BufferedSend(buffers) => {
+                for buf in buffers.into_iter() {
+                    self.stream.write(buf)
+                }
             }
 
             StreamMessage::Close => {

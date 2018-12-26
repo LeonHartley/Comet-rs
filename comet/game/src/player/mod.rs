@@ -1,3 +1,3 @@
 pub struct Player {
-    pub stream: Recipient<StreamMessage>
+    stream: Recipient<StreamMessage>
 }
