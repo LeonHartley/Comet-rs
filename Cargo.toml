@@ -12,6 +12,8 @@ log = "0.4.6"
 env_logger = "0.6.0"
 chrono = "0.4.6"
 actix = "0.7"
+mysql = "15.0.0"
+futures = "0.1"
 
 server = { path = "comet/server" }
 db = { path = "comet/db" }

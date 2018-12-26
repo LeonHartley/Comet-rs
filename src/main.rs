@@ -9,6 +9,8 @@ extern crate env_logger;
 extern crate config;
 extern crate clap;
 extern crate actix;
+extern crate mysql;
+extern crate futures;
 
 use clap::Arg;
 use std::io::Write;
@@ -17,6 +19,11 @@ use env_logger::Builder;
 use log::LevelFilter;
 use chrono::Local;
 use server::core::Server;
+use mysql::Pool;
+use actix::SyncArbiter;
+use db::ctx::DbContext;
+use db::query::player::PlayerByLoginTicket;
+use futures::future::{join_all, ok as fut_ok, Future};
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")
@@ -60,6 +67,24 @@ pub fn main() {
         .init();
 
     let system = actix::System::new("comet-server");
+
+    let pool = Pool::new({ config.database.connection_string }).unwrap();
+
+    let db = SyncArbiter::start(2, move || DbContext(pool.clone()));
+
+    let b = db.send(PlayerByLoginTicket(String::from("heyo ;)")))
+        .from_err()
+        .and_then(|res| {
+            let player = match res {
+                Ok(p) => p.unwrap(),
+                Err(e) => {
+                    return Ok(());
+                }
+            };
+
+            println!("id: {}, username: {}", player.id, player.name);
+            Ok(())
+        });
 
     Server::new(&config.game)
         .start();
