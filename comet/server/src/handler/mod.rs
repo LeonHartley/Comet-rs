@@ -5,12 +5,14 @@ use actix::Addr;
 
 mod req;
 mod handshake;
+mod player;
 
 type HandlerFunc = Fn(&mut Buffer, Addr<ServerSession>);
 type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
 
 const CLIENT_VERSION_EVENT: i16 = 4000;
 const SSO_TICKET_EVENT: i16 = 286;
+const INFO_RETRIEVE_EVENT: i16 = 2401;
 
 pub struct MessageHandler {
     handlers: HandlerMap
@@ -39,6 +41,7 @@ impl MessageHandler {
 fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
     map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
     map.insert(SSO_TICKET_EVENT, Box::new(handshake::authentication_handler));
+    map.insert(INFO_RETRIEVE_EVENT, Box::new(player::info_retrieve));
 
     map
 }
