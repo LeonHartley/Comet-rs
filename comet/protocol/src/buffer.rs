@@ -78,11 +78,21 @@ impl Buffer {
         self
     }
 
+    pub fn write_bool(mut self, b: bool) -> Self {
+        self.inner.reserve(1);
+        self.inner.put_u8((if b { 1 } else { 0 }) as u8);
+
+        self
+    }
+
     pub fn compose_to(&self, buf: &mut BytesMut) {
-        buf.reserve(6 + self.inner.len());
+        let len = 6 + self.inner.len();
+        buf.reserve(len);
         buf.put_i32_be((self.inner.len() as i32) + 2);
         buf.put_i16_be(self.id);
         buf.put_slice(self.inner.as_ref());
+
+        println!("composing {} bytes", len);
     }
 
     pub fn bytes(&self) -> &[u8] {

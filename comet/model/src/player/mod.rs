@@ -8,7 +8,7 @@ pub struct Player {
     pub balance: PlayerBalance,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 pub enum PlayerGender {
     Male,
     Female,
@@ -23,6 +23,15 @@ impl From<String> for PlayerGender {
     }
 }
 
+impl Into<String> for PlayerGender {
+    fn into(self) -> String {
+        match self {
+            PlayerGender::Male => "M".to_string(),
+            _ => "F".to_string()
+        }
+    }
+}
+
 #[derive(Copy, Debug)]
 pub struct PlayerBalance {
     pub credits: i32,
@@ -32,6 +41,13 @@ pub struct PlayerBalance {
 }
 
 impl Clone for PlayerBalance {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+
+impl Clone for PlayerGender {
     fn clone(&self) -> Self {
         *self
     }

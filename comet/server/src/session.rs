@@ -55,6 +55,12 @@ impl ServerSession {
         self.stream.write(buf);
     }
 
+    pub fn compose_all(&mut self, buffers: Vec<Buffer>) {
+        for buf in buffers.into_iter() {
+            self.compose(buf);
+        }
+    }
+
     pub fn player(&self) -> Option<Addr<Player>> {
         match self.player {
             Some(ref ctx) => Some(ctx.addr.clone()),
@@ -62,9 +68,16 @@ impl ServerSession {
         }
     }
 
-    pub fn player_data(&self) -> Option<&model::player::Player> {
+    pub fn player_data(&self) -> Option<Arc<model::player::Player>> {
         match self.player {
-            Some(ref ctx) => Some(ctx.data.as_ref()),
+            Some(ref ctx) => Some(ctx.data.clone()),
+            _ => None
+        }
+    }
+
+    pub fn player_balance(&self) -> Option<model::player::PlayerBalance> {
+        match self.player {
+            Some(ref ctx) => Some(ctx.data.balance),
             _ => None
         }
     }
