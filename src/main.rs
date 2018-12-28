@@ -15,7 +15,6 @@ use actix::SyncArbiter;
 use chrono::Local;
 use clap::Arg;
 use db::ctx::DbContext;
-use db::Error;
 use env_logger::Builder;
 use log::LevelFilter;
 use model::config::Config;

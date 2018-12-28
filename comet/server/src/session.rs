@@ -30,7 +30,6 @@ pub struct ServerSession {
     pub db: Addr<DbContext>,
     pub stream: NetworkStream,
     player: Option<Addr<Player>>,
-    status: SessionStatus,
     handler: MessageHandler,
 }
 
@@ -39,7 +38,6 @@ impl ServerSession {
         Self {
             server,
             db,
-            status: SessionStatus::Idle,
             stream,
             handler: MessageHandler::new(),
             player: None,
@@ -59,6 +57,13 @@ impl ServerSession {
 
     pub fn set_player(&mut self, player: Addr<Player>) {
         self.player = Some(player);
+    }
+
+    pub fn status(&self) -> SessionStatus {
+        match self.player {
+            Some(_) => SessionStatus::Active,
+            _ => SessionStatus::Idle
+        }
     }
 }
 

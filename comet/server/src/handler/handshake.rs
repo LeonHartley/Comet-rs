@@ -1,7 +1,5 @@
-use protocol::buffer::{Buffer, StreamMessage};
+use protocol::buffer::{Buffer};
 use session::ServerSession;
-use protocol::composer::handshake::motd_composer;
-use protocol::composer::handshake::auth_ok_composer;
 use actix::Addr;
 use handler::req::login::AuthenticateRequest;
 

@@ -1,4 +1,4 @@
-use actix::{Actor, Message, Recipient, Context};
+use actix::{Actor, Context, Message, Recipient};
 use model::player;
 use protocol::buffer::StreamMessage;
 use protocol::composer::handshake::auth_ok_composer;

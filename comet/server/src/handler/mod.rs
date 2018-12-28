@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use protocol::buffer::Buffer;
 use session::ServerSession;
-use actix::Context;
 use actix::Addr;
 
 mod req;
