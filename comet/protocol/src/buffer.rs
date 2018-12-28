@@ -1,7 +1,7 @@
-use bytes::{BytesMut, BufMut};
-use bytes::ByteOrder;
-use byteorder::BigEndian;
 use actix::prelude::*;
+use byteorder::BigEndian;
+use bytes::{BufMut, BytesMut};
+use bytes::ByteOrder;
 
 #[derive(Message)]
 pub enum StreamMessage {
@@ -12,15 +12,13 @@ pub enum StreamMessage {
 
 pub struct Buffer {
     pub id: i16,
-    pub size: usize,
     pub inner: BytesMut,
 }
 
 impl Buffer {
-    pub fn new(id: i16, size: usize, inner: BytesMut) -> Buffer {
+    pub fn new(id: i16, inner: BytesMut) -> Buffer {
         Buffer {
             id,
-            size,
             inner,
         }
     }
@@ -28,7 +26,6 @@ impl Buffer {
     pub fn empty(id: i16) -> Buffer {
         Buffer {
             id,
-            size: 1024,
             inner: BytesMut::new(),
         }
     }
@@ -36,7 +33,6 @@ impl Buffer {
     pub fn from_bytes(bytes: &[u8]) -> Buffer {
         Buffer {
             id: 0,
-            size: bytes.len(),
             inner: BytesMut::from(bytes),
         }
     }
@@ -67,15 +63,19 @@ impl Buffer {
         }
     }
 
-    pub fn write_i32(&mut self, i: i32) {
+    pub fn write_i32(mut self, i: i32) -> Self {
         self.inner.reserve(4);
         self.inner.put_i32_be(i);
+
+        self
     }
 
-    pub fn write_string(&mut self, s: String) {
+    pub fn write_string(mut self, s: String) -> Self {
         self.inner.reserve(2 + s.len());
         self.inner.put_i16_be(s.len() as i16);
         self.inner.put_slice(s.as_bytes());
+
+        self
     }
 
     pub fn compose_to(&self, buf: &mut BytesMut) {

@@ -1,15 +1,15 @@
 use byteorder::{BigEndian, ByteOrder};
-use bytes::{BytesMut, BufMut};
-use tokio_io::codec::{Decoder, Encoder};
-use std::io;
+use bytes::{BufMut, BytesMut};
 use protocol::buffer::Buffer;
+use std::io;
 use std::option::Option;
+use tokio_io::codec::{Decoder, Encoder};
 
 pub struct GameCodec;
 
 pub enum IncomingMessage {
     Policy,
-    Event(Buffer)
+    Event(Buffer),
 }
 
 impl Decoder for GameCodec {
@@ -69,5 +69,5 @@ fn parse_request(mut buf: BytesMut) -> Option<Buffer> {
     let id = BigEndian::read_i16(buf.as_ref());
     buf.advance(2);
 
-    Some(Buffer::new(id, buf.len(), buf))
+    Some(Buffer::new(id, buf))
 }
