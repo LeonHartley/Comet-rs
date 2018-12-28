@@ -33,11 +33,14 @@ impl Decoder for GameCodec {
 
         if src.len() >= size + 4 {
             src.split_to(4);
-            let buf = src.split_to(size);
+            let mut buf = src.split_to(size);
 
             src.clear();
 
-            Ok(Some(IncomingMessage::Event(parse_request(buf).unwrap())))
+            let id = BigEndian::read_i16(buf.as_ref());
+            buf.advance(2);
+
+            Ok(Some(IncomingMessage::Event(Buffer::new(id, buf))))
         } else {
             Ok(None)
         }
@@ -63,11 +66,4 @@ impl Encoder for GameCodec {
 
         Ok(())
     }
-}
-
-fn parse_request(mut buf: BytesMut) -> Option<Buffer> {
-    let id = BigEndian::read_i16(buf.as_ref());
-    buf.advance(2);
-
-    Some(Buffer::new(id, buf))
 }

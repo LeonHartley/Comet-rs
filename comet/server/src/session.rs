@@ -1,5 +1,5 @@
-use actix::{Context, prelude::*, Addr, Actor, Handler, StreamHandler, io::FramedWrite, io::WriteHandler};
-use codec::{IncomingMessage, GameCodec};
+use actix::{Actor, Addr, Context, Handler, io::FramedWrite, io::WriteHandler, prelude::*, StreamHandler};
+use codec::{GameCodec, IncomingMessage};
 use core::Server;
 use db::ctx::DbContext;
 use game::player::Player;
