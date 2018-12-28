@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate mysql;
 extern crate actix;
 extern crate model;

@@ -22,12 +22,13 @@ impl Handler<AuthenticateRequest> for ServerSession {
                     Ok(p) => match p {
                         Some(p) => p,
                         None => {
+                            act.stream.close();
                             return actix::fut::ok(());
                         }
                     }
 
                     _ => {
-                        ctx.stop();
+                        act.stream.close();
                         return actix::fut::ok(());
                     }
                 };
