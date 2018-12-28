@@ -1,5 +1,7 @@
-extern crate protocol;
-extern crate model;
 extern crate actix;
+#[macro_use]
+extern crate log;
+extern crate model;
+extern crate protocol;
 
 pub mod player;

@@ -1,7 +1,9 @@
+extern crate actix;
+#[macro_use]
+extern crate log;
+extern crate model;
 #[macro_use]
 extern crate mysql;
-extern crate actix;
-extern crate model;
 
 pub mod ctx;
 pub mod query;

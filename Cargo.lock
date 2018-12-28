@@ -440,6 +440,7 @@ name = "db"
 version = "0.1.0"
 dependencies = [
  "actix 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "model 0.1.0",
  "mysql 15.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

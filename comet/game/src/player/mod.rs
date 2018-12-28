@@ -27,9 +27,15 @@ impl Actor for Player {
     type Context = Context<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
+        info!("{} logged in", self.data().name);
+
         self.stream.do_send(StreamMessage::BufferedSend(vec![
             auth_ok_composer(),
-            motd_composer(String::from("top kek"))
+            motd_composer(format!("data: {:?}", self.data()))
         ]));
+    }
+
+    fn stopped(&mut self, ctx: &mut Self::Context) {
+        info!("{} logged out", self.data().name);
     }
 }
