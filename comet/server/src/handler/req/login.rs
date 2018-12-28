@@ -1,12 +1,11 @@
 use actix::{Context, Handler, Message};
 use actix::ActorFuture;
-use actix::fut::WrapFuture;
+use actix::fut::{ok, WrapFuture};
 use actix::prelude::*;
-use actix_web::actix;
 use db::query::player::PlayerByLoginTicket;
-use futures::future::Future;
 use futures::Stream;
 use session::ServerSession;
+use actix;
 
 #[derive(Message)]
 pub struct AuthenticateRequest(pub String);
@@ -23,18 +22,18 @@ impl Handler<AuthenticateRequest> for ServerSession {
                         Some(p) => p,
                         None => {
                             act.stream.close();
-                            return actix::fut::ok(());
+                            return ok(());
                         }
                     }
 
                     _ => {
                         act.stream.close();
-                        return actix::fut::ok(());
+                        return ok(());
                     }
                 };
 
                 println!("{}", p.name);
-                actix::fut::ok(())
+                ok(())
             })
             .wait(ctx);
     }
