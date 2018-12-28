@@ -1,22 +1,12 @@
-use actix::Actor;
-use actix::Addr;
-use actix::Context;
-use actix::Handler;
-use actix::prelude::*;
-use actix::StreamHandler;
-use actix_web::actix;
-use codec::GameCodec;
-use codec::IncomingMessage;
+use actix::{Context, prelude::*, Addr, Actor, Handler, StreamHandler, io::FramedWrite, io::WriteHandler};
+use codec::{IncomingMessage, GameCodec};
 use core::Server;
 use db::ctx::DbContext;
 use game::player::Player;
 use handler::MessageHandler;
-use protocol::buffer::Buffer;
-use protocol::buffer::StreamMessage;
+use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer;
-use std::borrow::Borrow;
-use std::io;
-use std::sync::Arc;
+use std::{io, sync::Arc};
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
 
@@ -30,7 +20,7 @@ pub struct PlayerContext {
     pub data: Arc<model::player::Player>,
 }
 
-type NetworkStream = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
+type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 
 pub struct ServerSession {
     pub server: Addr<Server>,
@@ -94,7 +84,7 @@ impl ServerSession {
     }
 }
 
-impl actix::io::WriteHandler<io::Error> for ServerSession {}
+impl WriteHandler<io::Error> for ServerSession {}
 
 impl Actor for ServerSession {
     type Context = Context<Self>;
