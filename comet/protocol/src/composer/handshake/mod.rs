@@ -7,7 +7,7 @@ pub fn policy_file() -> Buffer {
 pub fn motd_composer(motd: String) -> Buffer {
     Buffer::empty(408)
         .write_i32(1)
-        .write_string(motd)
+        .write_string(&motd)
 }
 
 pub fn auth_ok_composer() -> Buffer {

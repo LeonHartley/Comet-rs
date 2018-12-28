@@ -1,6 +1,5 @@
 use actix::{Context, Handler, Message};
-use protocol::composer::player::credits_composer;
-use protocol::composer::player::player_info_composer;
+use protocol::composer::player::{credits_composer, player_info_composer};
 use session::ServerSession;
 
 #[derive(Message)]
@@ -17,7 +16,7 @@ impl Handler<InfoRetrieve> for ServerSession {
 
         self.compose_all(vec![
             credits_composer(player.balance.credits),
-            player_info_composer(player.as_ref().clone())
+            player_info_composer(player.as_ref())
         ]);
     }
 }
