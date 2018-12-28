@@ -17,7 +17,7 @@ impl Handler<InfoRetrieve> for ServerSession {
 
         self.compose_all(vec![
             credits_composer(player.balance.credits),
-            player_info_composer(player.as_ref())
+            player_info_composer(player.as_ref().clone())
         ]);
     }
 }

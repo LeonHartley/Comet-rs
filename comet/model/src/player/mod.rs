@@ -40,12 +40,24 @@ pub struct PlayerBalance {
     pub activity_points: i32,
 }
 
+impl Clone for Player {
+    fn clone(&self) -> Self {
+        Player {
+            id: self.id,
+            name: self.name.clone(),
+            figure: self.figure.clone(),
+            motto: self.motto.clone(),
+            gender: self.gender.clone(),
+            balance: self.balance.clone(),
+        }
+    }
+}
+
 impl Clone for PlayerBalance {
     fn clone(&self) -> Self {
         *self
     }
 }
-
 
 impl Clone for PlayerGender {
     fn clone(&self) -> Self {
