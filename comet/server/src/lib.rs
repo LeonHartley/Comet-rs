@@ -1,4 +1,5 @@
 extern crate model;
+extern crate db;
 extern crate actix;
 extern crate protocol;
 extern crate bytes;

@@ -12,13 +12,15 @@ use actix_web::actix;
 use session::ServerSession;
 use futures::Stream;
 use std::str::FromStr;
+use db::ctx::DbContext;
 
 pub struct TcpServer {
-    server: Addr<Server>
+    server: Addr<Server>,
+    db: Addr<DbContext>,
 }
 
 impl TcpServer {
-    pub fn new(addr: String, server: Addr<Server>) {
+    pub fn new(addr: String, server: Addr<Server>, db: Addr<DbContext>) {
         let addr = SocketAddr::from_str(&addr).unwrap();
         let listener = TcpListener::bind(&addr).unwrap();
 
@@ -31,7 +33,7 @@ impl TcpServer {
             );
 
             info!(target: "io", "Server started on addr: {}", &addr);
-            TcpServer { server }
+            TcpServer { server, db }
         });
     }
 }
@@ -49,11 +51,12 @@ impl Handler<TcpConnect> for TcpServer {
 
     fn handle(&mut self, msg: TcpConnect, _: &mut Context<Self>) {
         let server = self.server.clone();
+        let db = self.db.clone();
         ServerSession::create(|ctx| {
             let (r, w) = msg.0.split();
 
             ServerSession::add_stream(FramedRead::new(r, GameCodec), ctx);
-            ServerSession::new(server, actix::io::FramedWrite::new(w, GameCodec, ctx))
+            ServerSession::new(server, db, actix::io::FramedWrite::new(w, GameCodec, ctx))
         });
     }
 }

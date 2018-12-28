@@ -22,8 +22,7 @@ use server::core::Server;
 use mysql::Pool;
 use actix::SyncArbiter;
 use db::ctx::DbContext;
-use db::query::player::PlayerByLoginTicket;
-use futures::future::{join_all, ok as fut_ok, Future};
+use db::Error;
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")
@@ -72,22 +71,8 @@ pub fn main() {
 
     let db = SyncArbiter::start(2, move || DbContext(pool.clone()));
 
-    let b = db.send(PlayerByLoginTicket(String::from("heyo ;)")))
-        .from_err()
-        .and_then(|res| {
-            let player = match res {
-                Ok(p) => p.unwrap(),
-                Err(e) => {
-                    return Ok(());
-                }
-            };
-
-            println!("id: {}, username: {}", player.id, player.name);
-            Ok(())
-        });
-
     Server::new(&config.game)
-        .start();
+        .start(db);
 
     info!(target: "boot", "Comet is starting");
 

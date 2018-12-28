@@ -5,4 +5,5 @@ extern crate model;
 pub mod ctx;
 pub mod query;
 
+#[derive(Debug)]
 pub struct Error(String);

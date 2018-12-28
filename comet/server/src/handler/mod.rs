@@ -4,6 +4,7 @@ use session::ServerSession;
 use actix::Context;
 use actix::Addr;
 
+mod req;
 mod handshake;
 
 type HandlerFunc = Fn(&mut Buffer, Addr<ServerSession>);

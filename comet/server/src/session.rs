@@ -1,21 +1,21 @@
-use codec::GameCodec;
-use actix::Addr;
-use actix_web::actix;
-use tokio_io::io::WriteHalf;
-use tokio_tcp::TcpStream;
-use actix::StreamHandler;
-use std::io;
-use actix::Context;
-use core::Server;
 use actix::Actor;
-use codec::IncomingMessage;
-use protocol::event::handshake::policy_file;
-use handler::MessageHandler;
-use protocol::event;
-use protocol::buffer::Buffer;
+use actix::Addr;
+use actix::Context;
 use actix::Handler;
 use actix::prelude::*;
+use actix::StreamHandler;
+use actix_web::actix;
+use codec::GameCodec;
+use codec::IncomingMessage;
+use core::Server;
+use db::ctx::DbContext;
+use handler::MessageHandler;
+use protocol::buffer::Buffer;
 use protocol::buffer::StreamMessage;
+use std::io;
+use tokio_io::io::WriteHalf;
+use tokio_tcp::TcpStream;
+use protocol::composer;
 
 pub enum SessionStatus {
     Idle,
@@ -25,16 +25,18 @@ pub enum SessionStatus {
 type NetworkStream = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 
 pub struct ServerSession {
-    server: Addr<Server>,
+    pub server: Addr<Server>,
+    pub db: Addr<DbContext>,
+    pub stream: NetworkStream,
     status: SessionStatus,
-    stream: NetworkStream,
     handler: MessageHandler,
 }
 
 impl ServerSession {
-    pub fn new(server: Addr<Server>, stream: NetworkStream) -> Self {
+    pub fn new(server: Addr<Server>, db: Addr<DbContext>, stream: NetworkStream) -> Self {
         Self {
             server,
+            db,
             status: SessionStatus::Idle,
             stream,
             handler: MessageHandler::new(),
@@ -78,7 +80,7 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
     fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
         match item {
             IncomingMessage::Policy => {
-                self.stream.write(event::handshake::policy_file());
+                self.stream.write(composer::handshake::policy_file());
                 self.stream.close();
             }
 
