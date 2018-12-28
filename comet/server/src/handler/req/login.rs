@@ -17,7 +17,7 @@ impl Handler<AuthenticateRequest> for ServerSession {
     fn handle(&mut self, msg: AuthenticateRequest, ctx: &mut Context<Self>) {
         self.db.send(PlayerByLoginTicket(msg.0))
             .into_actor(self)
-            .then(|res, mut act, ctx| {
+            .then(|res, act, ctx| {
                 let p = match res {
                     Ok(p) => match p {
                         Some(p) => p,
