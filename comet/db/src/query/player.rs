@@ -57,12 +57,8 @@ impl Handler<PlayerByLoginTicket> for DbContext {
 })
             .map(|res| {
                 res.map(|x| x.unwrap()).map(|row| {
-                    let player: PlayerQueryResult = {
-                        let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points) = mysql::from_row(row);
-                        PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points }
-                    };
-
-                    player.into()
+                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points) = mysql::from_row(row);
+                    PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points }.into()
                 }).collect()
             });
 
