@@ -1,28 +1,27 @@
+extern crate actix;
+extern crate chrono;
+extern crate clap;
+extern crate config;
 extern crate db;
-extern crate model;
-extern crate server;
-
+extern crate env_logger;
+extern crate futures;
 #[macro_use]
 extern crate log;
-extern crate chrono;
-extern crate env_logger;
-extern crate config;
-extern crate clap;
-extern crate actix;
+extern crate model;
 extern crate mysql;
-extern crate futures;
+extern crate server;
 
-use clap::Arg;
-use std::io::Write;
-use model::config::Config;
-use env_logger::Builder;
-use log::LevelFilter;
-use chrono::Local;
-use server::core::Server;
-use mysql::Pool;
 use actix::SyncArbiter;
+use chrono::Local;
+use clap::Arg;
 use db::ctx::DbContext;
 use db::Error;
+use env_logger::Builder;
+use log::LevelFilter;
+use model::config::Config;
+use mysql::Pool;
+use server::core::Server;
+use std::io::Write;
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")
@@ -69,7 +68,7 @@ pub fn main() {
 
     let pool = Pool::new({ config.database.connection_string }).unwrap();
 
-    let db = SyncArbiter::start(2, move || DbContext(pool.clone()));
+    let db = SyncArbiter::start(config.database.executors, move || DbContext(pool.clone()));
 
     Server::new(&config.game)
         .start(db);

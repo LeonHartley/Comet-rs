@@ -4,8 +4,9 @@ use actix::fut::{ok, WrapFuture};
 use actix::prelude::*;
 use db::query::player::PlayerByLoginTicket;
 use futures::Stream;
+use game::player::Player;
+use protocol::buffer::StreamMessage;
 use session::ServerSession;
-use actix;
 
 #[derive(Message)]
 pub struct AuthenticateRequest(pub String);
@@ -16,7 +17,7 @@ impl Handler<AuthenticateRequest> for ServerSession {
     fn handle(&mut self, msg: AuthenticateRequest, ctx: &mut Context<Self>) {
         self.db.send(PlayerByLoginTicket(msg.0))
             .into_actor(self)
-            .then(|res, act, ctx| {
+            .then(|res, mut act, ctx| {
                 let p = match res {
                     Ok(p) => match p {
                         Some(p) => p,
@@ -32,7 +33,11 @@ impl Handler<AuthenticateRequest> for ServerSession {
                     }
                 };
 
-                println!("{}", p.name);
+                let recipient = ctx.address().recipient::<StreamMessage>();
+                act.set_player(Player::create(move |player| {
+                    Player::new(recipient, p)
+                }));
+
                 ok(())
             })
             .wait(ctx);

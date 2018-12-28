@@ -9,13 +9,14 @@ use codec::GameCodec;
 use codec::IncomingMessage;
 use core::Server;
 use db::ctx::DbContext;
+use game::player::Player;
 use handler::MessageHandler;
 use protocol::buffer::Buffer;
 use protocol::buffer::StreamMessage;
+use protocol::composer;
 use std::io;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
-use protocol::composer;
 
 pub enum SessionStatus {
     Idle,
@@ -28,6 +29,7 @@ pub struct ServerSession {
     pub server: Addr<Server>,
     pub db: Addr<DbContext>,
     pub stream: NetworkStream,
+    player: Option<Addr<Player>>,
     status: SessionStatus,
     handler: MessageHandler,
 }
@@ -40,11 +42,23 @@ impl ServerSession {
             status: SessionStatus::Idle,
             stream,
             handler: MessageHandler::new(),
+            player: None,
         }
     }
 
     pub fn compose(&mut self, buf: Buffer) {
         self.stream.write(buf);
+    }
+
+    pub fn player(&self) -> Option<Addr<Player>> {
+        match self.player {
+            Some(ref addr) => Some(addr.clone()),
+            None => None
+        }
+    }
+
+    pub fn set_player(&mut self, player: Addr<Player>) {
+        self.player = Some(player);
     }
 }
 

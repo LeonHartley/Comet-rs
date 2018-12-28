@@ -11,6 +11,7 @@ extern crate futures;
 
 #[macro_use]
 extern crate log;
+extern crate game;
 
 pub mod codec;
 pub mod handler;

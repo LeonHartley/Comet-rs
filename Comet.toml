@@ -1,5 +1,6 @@
 [database]
 connection_string = "mysql://dbuser:123123@localhost/cometsrv"
+executors = 2
 
 [game]
 host = "0.0.0.0"
