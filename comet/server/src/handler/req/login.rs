@@ -5,7 +5,9 @@ use actix::prelude::*;
 use db::query::player::PlayerByLoginTicket;
 use game::player::Player;
 use protocol::buffer::StreamMessage;
+use session::PlayerContext;
 use session::ServerSession;
+use std::sync::Arc;
 
 #[derive(Message)]
 pub struct AuthenticateRequest(pub String);
@@ -32,13 +34,17 @@ impl Handler<AuthenticateRequest> for ServerSession {
                     }
                 };
 
+                let player = Arc::new(p);
+                let p = player.clone();
                 let recipient = ctx.address().recipient::<StreamMessage>();
-                act.set_player(Player::create(move |_ctx| {
-                    Player::new(recipient, p)
-                }));
+                act.set_player(PlayerContext {
+                    addr: Player::create(move |_ctx| {
+                        Player::new(recipient, player.clone())
+                    }),
+                    data: p,
+                });
 
                 ok(())
-            })
-            .spawn(ctx);
+            }).spawn(ctx);
     }
 }

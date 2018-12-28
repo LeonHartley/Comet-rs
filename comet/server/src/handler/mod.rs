@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use actix::Addr;
 use protocol::buffer::Buffer;
 use session::ServerSession;
-use actix::Addr;
+use std::collections::HashMap;
 
 mod req;
 mod handshake;

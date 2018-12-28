@@ -14,7 +14,9 @@ use handler::MessageHandler;
 use protocol::buffer::Buffer;
 use protocol::buffer::StreamMessage;
 use protocol::composer;
+use std::borrow::Borrow;
 use std::io;
+use std::sync::Arc;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
 
@@ -23,13 +25,18 @@ pub enum SessionStatus {
     Active,
 }
 
+pub struct PlayerContext {
+    pub addr: Addr<Player>,
+    pub data: Arc<model::player::Player>,
+}
+
 type NetworkStream = actix::io::FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 
 pub struct ServerSession {
     pub server: Addr<Server>,
     pub db: Addr<DbContext>,
     pub stream: NetworkStream,
-    player: Option<Addr<Player>>,
+    player: Option<PlayerContext>,
     handler: MessageHandler,
 }
 
@@ -50,13 +57,20 @@ impl ServerSession {
 
     pub fn player(&self) -> Option<Addr<Player>> {
         match self.player {
-            Some(ref addr) => Some(addr.clone()),
+            Some(ref ctx) => Some(ctx.addr.clone()),
             None => None
         }
     }
 
-    pub fn set_player(&mut self, player: Addr<Player>) {
-        self.player = Some(player);
+    pub fn player_data(&self) -> Option<&model::player::Player> {
+        match self.player {
+            Some(ref ctx) => Some(ctx.data.as_ref()),
+            _ => None
+        }
+    }
+
+    pub fn set_player(&mut self, ctx: PlayerContext) {
+        self.player = Some(ctx);
     }
 
     pub fn status(&self) -> SessionStatus {

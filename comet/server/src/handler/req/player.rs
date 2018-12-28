@@ -14,16 +14,10 @@ impl Handler<InfoRetrieve> for ServerSession {
     type Result = ();
 
     fn handle(&mut self, msg: InfoRetrieve, ctx: &mut Context<Self>) {
-        if let Some(player) = self.player() {
-            player.do_send(InfoRetrieve);
+        if let Some(ref player) = self.player_data() {
+            println!("{:?}", player);
+        } else {
+            println!("oops");
         }
-    }
-}
-
-impl Handler<InfoRetrieve> for Player {
-    type Result = ();
-
-    fn handle(&mut self, msg: InfoRetrieve, ctx: &mut Context<Self>) {
-
     }
 }

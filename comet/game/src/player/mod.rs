@@ -3,19 +3,16 @@ use model::player;
 use protocol::buffer::StreamMessage;
 use protocol::composer::handshake::auth_ok_composer;
 use protocol::composer::handshake::motd_composer;
+use std::sync::Arc;
 
 pub struct Player {
     stream: Recipient<StreamMessage>,
-    inner: player::Player,
+    inner: Arc<player::Player>,
 }
 
 impl Player {
-    pub fn new(stream: Recipient<StreamMessage>, inner: player::Player) -> Player {
+    pub fn new(stream: Recipient<StreamMessage>, inner: Arc<player::Player>) -> Player {
         Player { stream, inner }
-    }
-
-    pub fn data_mut(&mut self) -> &mut player::Player {
-        &mut self.inner
     }
 
     pub fn data(&self) -> &player::Player {
