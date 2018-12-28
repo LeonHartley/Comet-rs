@@ -52,9 +52,7 @@ impl Handler<PlayerByLoginTicket> for DbContext {
         let result: Result<Vec<Player>, _> = self.pool()
             .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points
                               FROM players WHERE auth_ticket = :ticket;",
-                       params! {
-"ticket" => msg.0,
-})
+                       params! {"ticket" => msg.0})
             .map(|res| {
                 res.map(|x| x.unwrap()).map(|row| {
                     let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points) = mysql::from_row(row);
