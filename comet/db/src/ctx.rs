@@ -1,13 +1,14 @@
 use mysql;
+use actix::{Actor, SyncContext};
 
-pub struct DbContext {
-    pub conn: mysql::Pool
+pub struct DbContext(pub mysql::Pool);
+
+impl Actor for DbContext {
+    type Context = SyncContext<Self>;
 }
 
 impl DbContext {
-    pub fn new(conn_string: &str) -> DbContext {
-        DbContext {
-            conn: mysql::Pool::new({ conn_string }).unwrap()
-        }
+    pub fn pool(&mut self) -> mysql::Pool {
+        self.0.clone()
     }
 }

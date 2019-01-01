@@ -1,9 +1,11 @@
 [database]
-connection_string = "mysql://dbuser:123123@localhost/cometsrv"
+connection_string = "mysql://root:password@localhost/comet"
+executors = 2
 
 [game]
 host = "0.0.0.0"
 port = 30000
 
 [logging]
-date_fmt =
+date_fmt = "%Y-%m-%d %H:%M:%S%.3f"
+level = "Debug"
