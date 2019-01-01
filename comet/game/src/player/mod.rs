@@ -1,8 +1,9 @@
+use std::sync::Arc;
+
 use actix::{Actor, Context, Message, Recipient};
 use model::player;
-use protocol::{buffer::StreamMessage, composer::handshake::{auth_ok_composer, motd_composer}};
-use protocol::composer::player::rights::*;
-use std::sync::Arc;
+use protocol::buffer::StreamMessage;
+use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 
 pub struct Player {
     stream: Recipient<StreamMessage>,
@@ -35,5 +36,7 @@ impl Actor for Player {
 
     fn stopped(&mut self, ctx: &mut Self::Context) {
         info!("{} logged out", self.data().name);
+
+        // Distribute any messages to notify friends/rooms
     }
 }

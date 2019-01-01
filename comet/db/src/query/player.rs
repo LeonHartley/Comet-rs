@@ -46,6 +46,8 @@ impl Handler<PlayerByLoginTicket> for DbContext {
     type Result = Option<Player>;
 
     fn handle(&mut self, msg: PlayerByLoginTicket, ctx: &mut SyncContext<Self>) -> Self::Result {
+        println!("requesting player by ticket: {}", msg.0);
+
         let result: Result<Vec<Player>, _> = self
             .pool()
             .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`

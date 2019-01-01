@@ -1,5 +1,5 @@
 [database]
-connection_string = "mysql://dbuser:123123@localhost/cometsrv"
+connection_string = "mysql://root:password@localhost/comet"
 executors = 2
 
 [game]

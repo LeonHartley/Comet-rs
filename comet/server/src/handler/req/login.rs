@@ -16,6 +16,7 @@ impl Handler<AuthenticateRequest> for ServerSession {
     type Result = ();
 
     fn handle(&mut self, msg: AuthenticateRequest, ctx: &mut Context<Self>) {
+        println!("yo");
         self.db.send(PlayerByLoginTicket(msg.0))
             .into_actor(self)
             .then(|res, act, ctx| {

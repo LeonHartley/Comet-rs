@@ -1,5 +1,5 @@
 use buffer::Buffer;
-use model::player::Player;
+use model::player::{Player, PlayerBalance};
 
 pub mod rights;
 pub mod messenger;
@@ -25,4 +25,12 @@ pub fn player_info_composer(player: &Player) -> Buffer {
 pub fn credits_composer(credits: i32) -> Buffer {
     Buffer::empty(1556)
         .write_str(&format!("{}.0", credits))
+}
+
+pub fn points_balance_composer(balance: &PlayerBalance) -> Buffer {
+    let mut buf = Buffer::empty(3304);
+
+
+
+    buf
 }
