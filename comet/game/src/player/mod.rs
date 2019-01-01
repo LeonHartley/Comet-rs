@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use actix::{Actor, Context, Message, Recipient};
+use actix::{Actor, Context, Recipient};
 use model::player;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
@@ -23,7 +23,7 @@ impl Player {
 impl Actor for Player {
     type Context = Context<Self>;
 
-    fn started(&mut self, ctx: &mut Self::Context) {
+    fn started(&mut self, _ctx: &mut Self::Context) {
         info!("{} logged in", self.data().name);
 
         let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
@@ -34,8 +34,9 @@ impl Actor for Player {
         ]));
     }
 
-    fn stopped(&mut self, ctx: &mut Self::Context) {
+    fn stopped(&mut self, _ctx: &mut Self::Context) {
         info!("{} logged out", self.data().name);
+
 
         // Distribute any messages to notify friends/rooms
     }

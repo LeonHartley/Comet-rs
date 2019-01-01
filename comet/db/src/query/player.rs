@@ -1,4 +1,4 @@
-use actix::{Context, Handler, Message};
+use actix::{Handler, Message};
 use actix::SyncContext;
 use ctx::DbContext;
 use model::player::{Player, PlayerBalance};
@@ -21,6 +21,8 @@ struct PlayerQueryResult {
     seasonal_points: i32,
     activity_points: i32,
     rank: i16,
+    achievement_points: i32,
+
 }
 
 impl Into<Player> for PlayerQueryResult {
@@ -32,6 +34,7 @@ impl Into<Player> for PlayerQueryResult {
             motto: self.motto,
             gender: self.gender.into(),
             rank: self.rank,
+            achievement_points: self.achievement_points,
             balance: PlayerBalance {
                 credits: self.credits,
                 vip_points: self.vip_points,
@@ -45,16 +48,16 @@ impl Into<Player> for PlayerQueryResult {
 impl Handler<PlayerByLoginTicket> for DbContext {
     type Result = Option<Player>;
 
-    fn handle(&mut self, msg: PlayerByLoginTicket, ctx: &mut SyncContext<Self>) -> Self::Result {
+    fn handle(&mut self, msg: PlayerByLoginTicket, _ctx: &mut SyncContext<Self>) -> Self::Result {
         println!("requesting player by ticket: {}", msg.0);
 
         let result: Result<Vec<Player>, _> = self
             .pool()
-            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`
+            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`, achievement_points
                               FROM players WHERE auth_ticket = :ticket;", params! {"ticket" => msg.0})
             .map(|res| {
                 res.map(|x| x.unwrap()).map(|row| {
-                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank) = mysql::from_row(row);
+                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points) = mysql::from_row(row);
                     PlayerQueryResult {
                         id,
                         name,
@@ -66,6 +69,7 @@ impl Handler<PlayerByLoginTicket> for DbContext {
                         seasonal_points,
                         activity_points,
                         rank,
+                        achievement_points,
                     }.into()
                 }).collect()
             });

@@ -5,6 +5,7 @@ pub struct Player {
     pub figure: String,
     pub motto: String,
     pub rank: i16,
+    pub achievement_points: i32,
     pub gender: PlayerGender,
     pub balance: PlayerBalance,
 }
@@ -49,6 +50,7 @@ impl Clone for Player {
             figure: self.figure.clone(),
             motto: self.motto.clone(),
             gender: self.gender.clone(),
+            achievement_points: self.achievement_points,
             balance: self.balance.clone(),
             rank: self.rank,
         }

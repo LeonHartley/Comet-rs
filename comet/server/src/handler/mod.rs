@@ -33,8 +33,7 @@ impl MessageHandler {
         }
     }
 
-    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: Addr<ServerSession>,
-    ) {
+    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: Addr<ServerSession>) {
         let handler = match self.handlers.get(&header) {
             Some(handler) => handler.as_ref(),
             None => {
@@ -72,7 +71,7 @@ fn load_identifiers() -> HashMap<i16, String> {
             _ => HashMap::new()
         }
     } else {
-        debug!(target: "io", "Event name resolution is disabled, dev/event_id.json does not exist");
+        debug!(target: "io", "Event name resolution is disabled, dev/event_id.json does not exist or has invalid (non-JSON) format");
         HashMap::new()
     }
 }

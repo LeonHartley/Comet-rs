@@ -32,3 +32,8 @@ pub fn points_balance_composer(balance: &PlayerBalance) -> Buffer {
 
     buf.write_i32(0)
 }
+
+pub fn achievement_points_composers(points: i32) -> Buffer {
+    Buffer::empty(896)
+        .write_i32(points)
+}
