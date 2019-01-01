@@ -1,8 +1,7 @@
 use actix::{Actor, Context, Message, Recipient};
 use model::player;
-use protocol::buffer::StreamMessage;
-use protocol::composer::handshake::auth_ok_composer;
-use protocol::composer::handshake::motd_composer;
+use protocol::{buffer::StreamMessage, composer::handshake::{auth_ok_composer, motd_composer}};
+use protocol::composer::player::rights::*;
 use std::sync::Arc;
 
 pub struct Player {
@@ -26,8 +25,10 @@ impl Actor for Player {
     fn started(&mut self, ctx: &mut Self::Context) {
         info!("{} logged in", self.data().name);
 
-        self.stream.do_send(StreamMessage::BufferedSend(vec![
+        let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
             auth_ok_composer(),
+            fuserights_composer(self.data().rank, true),
+            allowances_composer(),
             motd_composer(format!("data: {:?}", self.data()))
         ]));
     }

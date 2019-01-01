@@ -1,4 +1,4 @@
-use actix::prelude::*;
+use actix::Message;
 use byteorder::BigEndian;
 use bytes::{BufMut, BytesMut};
 use bytes::ByteOrder;
@@ -70,7 +70,7 @@ impl Buffer {
         self
     }
 
-    pub fn write_string(mut self, s: &String) -> Self {
+    pub fn write_str(mut self, s: &String) -> Self {
         self.inner.reserve(2 + s.len());
         self.inner.put_i16_be(s.len() as i16);
         self.inner.put_slice(s.as_bytes());

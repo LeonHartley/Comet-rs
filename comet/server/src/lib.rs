@@ -8,6 +8,7 @@ extern crate tokio_io;
 extern crate actix_web;
 extern crate tokio_tcp;
 extern crate futures;
+extern crate serde_json;
 
 #[macro_use]
 extern crate log;

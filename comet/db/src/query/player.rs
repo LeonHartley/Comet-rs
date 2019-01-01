@@ -20,6 +20,7 @@ struct PlayerQueryResult {
     vip_points: i32,
     seasonal_points: i32,
     activity_points: i32,
+    rank: i16,
 }
 
 impl Into<Player> for PlayerQueryResult {
@@ -30,6 +31,7 @@ impl Into<Player> for PlayerQueryResult {
             figure: self.figure,
             motto: self.motto,
             gender: self.gender.into(),
+            rank: self.rank,
             balance: PlayerBalance {
                 credits: self.credits,
                 vip_points: self.vip_points,
@@ -46,21 +48,34 @@ impl Handler<PlayerByLoginTicket> for DbContext {
     fn handle(&mut self, msg: PlayerByLoginTicket, ctx: &mut SyncContext<Self>) -> Self::Result {
         let result: Result<Vec<Player>, _> = self
             .pool()
-            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points
+            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`
                               FROM players WHERE auth_ticket = :ticket;", params! {"ticket" => msg.0})
             .map(|res| {
                 res.map(|x| x.unwrap()).map(|row| {
-                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points) = mysql::from_row(row);
-                    PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points }.into()
+                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank) = mysql::from_row(row);
+                    PlayerQueryResult {
+                        id,
+                        name,
+                        figure,
+                        motto,
+                        gender,
+                        credits,
+                        vip_points,
+                        seasonal_points,
+                        activity_points,
+                        rank,
+                    }.into()
                 }).collect()
             });
 
         if let Ok(players) = result {
-            players
+            return players
                 .into_iter()
-                .next()
-        } else {
-            None
+                .next();
+        } else if let Err(e) = result {
+            error!("MySQL Error: {:?}", e);
         }
+
+        None
     }
 }
