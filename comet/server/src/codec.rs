@@ -1,16 +1,15 @@
-use std::io;
-use std::option::Option;
-
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use protocol::buffer::Buffer;
+use std::io;
+use std::option::Option;
 use tokio_io::codec::{Decoder, Encoder};
 
 pub struct GameCodec;
 
 pub enum IncomingMessage {
     Policy,
-    Event(Buffer),
+    Event(Vec<Buffer>),
 }
 
 impl Decoder for GameCodec {
@@ -34,19 +33,20 @@ impl Decoder for GameCodec {
             BigEndian::read_u32(src.as_ref()) as usize
         };
 
-        if src.len() >= size + 4 {
+        let mut buffers = vec![];
+
+        while src.len() >= size + 4 {
             src.split_to(4);
             let mut buf = src.split_to(size);
-
             src.clear();
 
             let id = BigEndian::read_i16(buf.as_ref());
             buf.advance(2);
 
-            Ok(Some(IncomingMessage::Event(Buffer::new(id, buf))))
-        } else {
-            Ok(None)
+            buffers.push(Buffer::new(id, buf))
         }
+
+        Ok(Some(IncomingMessage::Event(buffers)))
     }
 }
 
