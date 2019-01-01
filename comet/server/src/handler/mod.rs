@@ -1,13 +1,20 @@
-use actix::Addr;
-use protocol::buffer::Buffer;
-use session::ServerSession;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
+use actix::Addr;
+use protocol::buffer::Buffer;
+use session::ServerSession;
+
 mod req;
 mod handshake;
 mod player;
+
+lazy_static! {
+    static ref EVENT_NAMES: HashMap<i16, String> = {
+        load_identifiers()
+    };
+}
 
 type HandlerFunc = Fn(&mut Buffer, Addr<ServerSession>);
 type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
@@ -17,15 +24,13 @@ const SSO_TICKET_EVENT: i16 = 286;
 const INFO_RETRIEVE_EVENT: i16 = 2401;
 
 pub struct MessageHandler {
-    handlers: HandlerMap,
-    identifiers: HashMap<i16, String>,
+    handlers: HandlerMap
 }
 
 impl MessageHandler {
     pub fn new() -> MessageHandler {
         MessageHandler {
-            handlers: register_message_handlers(HashMap::new()),
-            identifiers: load_identifiers(),
+            handlers: register_message_handlers(HashMap::new())
         }
     }
 
@@ -38,7 +43,7 @@ impl MessageHandler {
         let handler = match self.handlers.get(&header) {
             Some(handler) => handler.as_ref(),
             None => {
-                if let Some(event) = self.identifiers.get(&header) {
+                if let Some(event) = EVENT_NAMES.get(&header) {
                     debug!(target: "io", "{} / {} unhandled", &header, event);
                 } else {
                     debug!(target: "io", "{} unhandled", &header);
@@ -61,15 +66,19 @@ fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
 
 
 fn load_identifiers() -> HashMap<i16, String> {
-    let mut file = File::open("dev/event_id.json").unwrap();
-    let mut data = String::new();
+    if let Ok(mut file) = File::open("dev/event_id.json") {
+        let mut data = String::new();
 
-    match file.read_to_string(&mut data) {
-        Ok(_) =>
-            match serde_json::from_str(&data) {
-                Ok(data) => data,
-                _ => HashMap::new()
-            },
-        _ => HashMap::new()
+        match file.read_to_string(&mut data) {
+            Ok(_) =>
+                match serde_json::from_str(&data) {
+                    Ok(data) => data,
+                    _ => HashMap::new()
+                },
+            _ => HashMap::new()
+        }
+    } else {
+        debug!(target: "io", "Event name resolution is disabled, dev/event_id.json does not exist");
+        HashMap::new()
     }
 }

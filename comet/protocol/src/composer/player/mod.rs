@@ -30,7 +30,5 @@ pub fn credits_composer(credits: i32) -> Buffer {
 pub fn points_balance_composer(balance: &PlayerBalance) -> Buffer {
     let mut buf = Buffer::empty(3304);
 
-
-
-    buf
+    buf.write_i32(0)
 }

@@ -1,8 +1,9 @@
+use std::io;
+use std::option::Option;
+
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use protocol::buffer::Buffer;
-use std::io;
-use std::option::Option;
 use tokio_io::codec::{Decoder, Encoder};
 
 pub struct GameCodec;
@@ -17,6 +18,8 @@ impl Decoder for GameCodec {
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        debug!("received data: {:?}", src);
+
         if src.first() == Some(&b'<') {
             src.clear();
 
@@ -61,6 +64,7 @@ impl Encoder for GameCodec {
 
             _ => {
                 item.compose_to(dst);
+                debug!("Composing {} bytes", dst.len());
             }
         }
 

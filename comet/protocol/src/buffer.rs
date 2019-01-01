@@ -91,8 +91,6 @@ impl Buffer {
         buf.put_i32_be((self.inner.len() as i32) + 2);
         buf.put_i16_be(self.id);
         buf.put_slice(self.inner.as_ref());
-
-        println!("composing {} bytes", len);
     }
 
     pub fn bytes(&self) -> &[u8] {
