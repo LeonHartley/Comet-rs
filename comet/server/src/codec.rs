@@ -10,7 +10,7 @@ pub struct GameCodec;
 
 pub enum IncomingMessage {
     Policy,
-    Event(Buffer),
+    Event(Vec<Buffer>),
 }
 
 impl Decoder for GameCodec {
@@ -18,7 +18,9 @@ impl Decoder for GameCodec {
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        debug!("received data: {:?}", src);
+        if src.is_empty() { return Ok(None); }
+
+        debug!(target: "io", "Received data {:?}", src);
 
         if src.first() == Some(&b'<') {
             src.clear();
@@ -26,27 +28,28 @@ impl Decoder for GameCodec {
             return Ok(Some(IncomingMessage::Policy));
         }
 
-        let size = {
-            if src.len() < 4 {
-                return Ok(None);
-            }
+        let mut buffers = vec![];
 
-            BigEndian::read_u32(src.as_ref()) as usize
-        };
+        while src.len() >= 6 {
+            let size = {
+                if src.len() < 4 {
+                    break;
+                }
 
-        if src.len() >= size + 4 {
-            src.split_to(4);
+                BigEndian::read_u32(src.as_ref()) as usize
+            };
+
+            src.advance(4);
+
             let mut buf = src.split_to(size);
-
-            src.clear();
 
             let id = BigEndian::read_i16(buf.as_ref());
             buf.advance(2);
 
-            Ok(Some(IncomingMessage::Event(Buffer::new(id, buf))))
-        } else {
-            Ok(None)
+            buffers.push(Buffer::new(id, buf))
         }
+
+        Ok(Some(IncomingMessage::Event(buffers)))
     }
 }
 

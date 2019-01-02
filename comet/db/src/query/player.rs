@@ -1,8 +1,14 @@
-use actix::{Context, Handler, Message};
+use actix::{Handler, Message};
 use actix::SyncContext;
 use ctx::DbContext;
-use model::player::{Player, PlayerBalance};
+use model::player::{Player, PlayerAvatar, PlayerBalance};
 use std::option::Option;
+
+trait PlayerRepository {
+    fn player_by_ticket(&mut self, ticket: String) -> Option<Player>;
+
+    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerAvatar>>;
+}
 
 pub struct PlayerByLoginTicket(pub String);
 
@@ -21,17 +27,23 @@ struct PlayerQueryResult {
     seasonal_points: i32,
     activity_points: i32,
     rank: i16,
+    achievement_points: i32,
+
 }
 
 impl Into<Player> for PlayerQueryResult {
     fn into(self) -> Player {
         Player {
-            id: self.id,
-            name: self.name,
-            figure: self.figure,
-            motto: self.motto,
-            gender: self.gender.into(),
+            avatar: PlayerAvatar {
+                id: self.id,
+                name: self.name,
+                figure: self.figure,
+                motto: self.motto,
+                gender: self.gender.into(),
+            },
+            friends: vec![],
             rank: self.rank,
+            achievement_points: self.achievement_points,
             balance: PlayerBalance {
                 credits: self.credits,
                 vip_points: self.vip_points,
@@ -42,31 +54,16 @@ impl Into<Player> for PlayerQueryResult {
     }
 }
 
-impl Handler<PlayerByLoginTicket> for DbContext {
-    type Result = Option<Player>;
-
-    fn handle(&mut self, msg: PlayerByLoginTicket, ctx: &mut SyncContext<Self>) -> Self::Result {
-        println!("requesting player by ticket: {}", msg.0);
-
+impl PlayerRepository for DbContext {
+    fn player_by_ticket(&mut self, ticket: String) -> Option<Player> {
         let result: Result<Vec<Player>, _> = self
             .pool()
-            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`
-                              FROM players WHERE auth_ticket = :ticket;", params! {"ticket" => msg.0})
+            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`, achievement_points
+                              FROM players WHERE auth_ticket = :ticket;", params! {"ticket" => ticket})
             .map(|res| {
                 res.map(|x| x.unwrap()).map(|row| {
-                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank) = mysql::from_row(row);
-                    PlayerQueryResult {
-                        id,
-                        name,
-                        figure,
-                        motto,
-                        gender,
-                        credits,
-                        vip_points,
-                        seasonal_points,
-                        activity_points,
-                        rank,
-                    }.into()
+                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points) = mysql::from_row(row);
+                    PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points }.into()
                 }).collect()
             });
 
@@ -78,6 +75,25 @@ impl Handler<PlayerByLoginTicket> for DbContext {
             error!("MySQL Error: {:?}", e);
         }
 
+        None
+    }
+
+    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerAvatar>> {
+        Some(vec![])
+    }
+}
+
+impl Handler<PlayerByLoginTicket> for DbContext {
+    type Result = Option<Player>;
+
+    fn handle(&mut self, msg: PlayerByLoginTicket, _ctx: &mut SyncContext<Self>) -> Self::Result {
+        if let Some(mut player) = self.player_by_ticket(msg.0) {
+            if let Some(friends) = self.player_friends(player.avatar.id) {
+                player.friends = friends
+            }
+
+            return Some(player);
+        }
         None
     }
 }

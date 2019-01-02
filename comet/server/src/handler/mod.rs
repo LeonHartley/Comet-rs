@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-
 use actix::Addr;
 use protocol::buffer::Buffer;
 use session::ServerSession;
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
 
 mod req;
 mod handshake;
@@ -34,12 +33,7 @@ impl MessageHandler {
         }
     }
 
-    pub fn handle(
-        &self,
-        header: i16,
-        buffer: &mut Buffer,
-        session: Addr<ServerSession>,
-    ) {
+    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: Addr<ServerSession>) {
         let handler = match self.handlers.get(&header) {
             Some(handler) => handler.as_ref(),
             None => {
@@ -64,7 +58,6 @@ fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
     map
 }
 
-
 fn load_identifiers() -> HashMap<i16, String> {
     if let Ok(mut file) = File::open("dev/event_id.json") {
         let mut data = String::new();
@@ -78,7 +71,7 @@ fn load_identifiers() -> HashMap<i16, String> {
             _ => HashMap::new()
         }
     } else {
-        debug!(target: "io", "Event name resolution is disabled, dev/event_id.json does not exist");
+        debug!(target: "io", "Event name resolution is disabled, dev/event_id.json does not exist or has invalid (non-JSON) format");
         HashMap::new()
     }
 }

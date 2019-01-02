@@ -6,6 +6,7 @@ extern crate protocol;
 
 pub mod player;
 pub mod ctx;
+pub mod core;
 
 #[cfg(test)]
 pub mod test;

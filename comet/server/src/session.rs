@@ -120,8 +120,10 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
                 self.stream.close();
             }
 
-            IncomingMessage::Event(mut buffer) => {
-                self.handler.handle(buffer.id, &mut buffer, ctx.address());
+            IncomingMessage::Event(buffers) => {
+                for mut buffer in buffers.into_iter() {
+                    self.handler.handle(buffer.id, &mut buffer, ctx.address());
+                }
             }
         }
     }

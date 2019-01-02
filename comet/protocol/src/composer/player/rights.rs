@@ -10,7 +10,7 @@ pub fn fuserights_composer(rank: i16, club: bool) -> Buffer {
 pub fn allowances_composer() -> Buffer {
     let allowances: Vec<(String, String, bool)> = vec![
         ("USE_GUIDE_TOOL".to_string(), String::new(), false),
-        ("GIVE_GUIdE_TOURS".to_string(), "requirement.unfulfilled.helper_le".to_string(), false),
+        ("GIVE_GUIDE_TOURS".to_string(), "requirement.unfulfilled.helper_le".to_string(), false),
         ("JUDGE_CHAT_REVIEWS".to_string(), String::new(), true),
         ("VOTE_IN_COMPETITIONS".to_string(), String::new(), true),
         ("CALL_ON_HELPERS".to_string(), String::new(), false),

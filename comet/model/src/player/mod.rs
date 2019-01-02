@@ -1,12 +1,20 @@
 #[derive(Debug)]
 pub struct Player {
+    pub avatar: PlayerAvatar,
+    pub friends: Vec<PlayerAvatar>,
+    pub rank: i16,
+    pub achievement_points: i32,
+    pub balance: PlayerBalance,
+}
+
+
+#[derive(Debug)]
+pub struct PlayerAvatar {
     pub id: i64,
     pub name: String,
     pub figure: String,
     pub motto: String,
-    pub rank: i16,
     pub gender: PlayerGender,
-    pub balance: PlayerBalance,
 }
 
 #[derive(Debug, Copy)]
@@ -44,13 +52,23 @@ pub struct PlayerBalance {
 impl Clone for Player {
     fn clone(&self) -> Self {
         Player {
+            avatar: self.avatar.clone(),
+            friends: self.friends.clone(),
+            achievement_points: self.achievement_points,
+            balance: self.balance.clone(),
+            rank: self.rank,
+        }
+    }
+}
+
+impl Clone for PlayerAvatar {
+    fn clone(&self) -> Self {
+        PlayerAvatar {
             id: self.id,
             name: self.name.clone(),
             figure: self.figure.clone(),
             motto: self.motto.clone(),
             gender: self.gender.clone(),
-            balance: self.balance.clone(),
-            rank: self.rank,
         }
     }
 }
