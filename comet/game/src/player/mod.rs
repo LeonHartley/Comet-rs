@@ -36,8 +36,6 @@ impl Actor for Player {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         info!("{} logged out", self.data().name);
-
-
         // Distribute any messages to notify friends/rooms
     }
 }
