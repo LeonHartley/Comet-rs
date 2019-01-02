@@ -1,7 +1,7 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::mem::transmute;
+use std::sync::Arc;
 
 pub type ComponentSet = HashMap<TypeId, Arc<Component>>;
 

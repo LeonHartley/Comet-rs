@@ -1,26 +1,33 @@
 use core::{Component, Container};
 use model::player::PlayerFriend;
 use player::Player;
-use std::sync::Arc;
 
-struct MessengerComponent {
+pub struct Messenger {
     friends: Vec<PlayerFriend>
 }
 
-impl Component for MessengerComponent {}
+impl Messenger {
+    pub fn new(friends: Vec<PlayerFriend>) -> Messenger {
+        Messenger {
+            friends
+        }
+    }
+}
 
-pub trait Messenger {
+impl Component for Messenger {}
+
+pub trait MessengerComponent {
     fn friends(&self) -> Vec<PlayerFriend>;
 }
 
-impl Messenger for MessengerComponent {
+impl MessengerComponent for Messenger {
     fn friends(&self) -> Vec<PlayerFriend> {
         self.friends.clone()
     }
 }
 
-impl Messenger for Player {
+impl MessengerComponent for Player {
     fn friends(&self) -> Vec<PlayerFriend> {
-        self.component::<MessengerComponent>().friends()
+        self.component::<Messenger>().friends()
     }
 }
