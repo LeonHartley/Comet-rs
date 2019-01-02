@@ -1,13 +1,13 @@
 use core::{Component, Container};
-use model::player::PlayerFriend;
 use player::Player;
+use model::player::PlayerAvatar;
 
 pub struct Messenger {
-    friends: Vec<PlayerFriend>
+    friends: Vec<PlayerAvatar>
 }
 
 impl Messenger {
-    pub fn new(friends: Vec<PlayerFriend>) -> Messenger {
+    pub fn new(friends: Vec<PlayerAvatar>) -> Messenger {
         Messenger {
             friends
         }
@@ -17,17 +17,17 @@ impl Messenger {
 impl Component for Messenger {}
 
 pub trait MessengerComponent {
-    fn friends(&self) -> Vec<PlayerFriend>;
+    fn friends(&self) -> Vec<PlayerAvatar>;
 }
 
 impl MessengerComponent for Messenger {
-    fn friends(&self) -> Vec<PlayerFriend> {
+    fn friends(&self) -> Vec<PlayerAvatar> {
         self.friends.clone()
     }
 }
 
 impl MessengerComponent for Player {
-    fn friends(&self) -> Vec<PlayerFriend> {
+    fn friends(&self) -> Vec<PlayerAvatar> {
         self.component::<Messenger>().friends()
     }
 }

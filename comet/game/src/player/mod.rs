@@ -4,6 +4,7 @@ use model::player;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 use std::sync::Arc;
+use player::component::messenger::MessengerComponent;
 
 pub mod component;
 
@@ -31,7 +32,9 @@ impl Actor for Player {
     type Context = Context<Self>;
 
     fn started(&mut self, _ctx: &mut Self::Context) {
-        info!("{} logged in", self.data().name);
+        info!("{} logged in", self.data().avatar.name);
+
+//        self.add_component()
 
         let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
             auth_ok_composer(),
@@ -42,7 +45,7 @@ impl Actor for Player {
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
-        info!("{} logged out", self.data().name);
+        info!("{} logged out", self.data().avatar.name);
         // Distribute any messages to notify friends/rooms
     }
 }
