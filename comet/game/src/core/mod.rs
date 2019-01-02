@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::mem::transmute;
 
-
 pub type ComponentSet = HashMap<TypeId, Arc<Component>>;
 
 pub trait Container {

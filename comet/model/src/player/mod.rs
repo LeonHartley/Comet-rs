@@ -68,3 +68,24 @@ impl Clone for PlayerGender {
         *self
     }
 }
+
+#[derive(Debug)]
+pub struct PlayerFriend {
+    pub id: i64,
+    pub name: String,
+    pub figure: String,
+    pub motto: String,
+    pub gender: PlayerGender,
+}
+
+impl Clone for PlayerFriend {
+    fn clone(&self) -> Self {
+        PlayerFriend {
+            id: self.id,
+            name: self.name.clone(),
+            figure: self.figure.clone(),
+            motto: self.motto.clone(),
+            gender: self.gender.clone(),
+        }
+    }
+}

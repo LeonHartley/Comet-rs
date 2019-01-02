@@ -1,23 +1,30 @@
-use std::sync::Arc;
-
 use actix::{Actor, Context, Recipient};
+use core::{ComponentSet, Container};
 use model::player;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
+use std::sync::Arc;
+
+pub mod component;
 
 pub struct Player {
     stream: Recipient<StreamMessage>,
     inner: Arc<player::Player>,
+    components: ComponentSet,
 }
 
 impl Player {
     pub fn new(stream: Recipient<StreamMessage>, inner: Arc<player::Player>) -> Player {
-        Player { stream, inner }
+        Player { stream, inner, components: ComponentSet::new() }
     }
 
-    pub fn data(&self) -> &player::Player {
-        &self.inner
-    }
+    pub fn data(&self) -> &player::Player { &self.inner }
+}
+
+impl Container for Player {
+    fn components(&self) -> &ComponentSet { &self.components }
+
+    fn components_mut(&mut self) -> &mut ComponentSet { &mut self.components }
 }
 
 impl Actor for Player {
