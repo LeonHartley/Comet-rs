@@ -20,8 +20,6 @@ impl Decoder for GameCodec {
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         if src.is_empty() { return Ok(None); }
 
-        debug!(target: "io", "Received data {:?}", src);
-
         if src.first() == Some(&b'<') {
             src.clear();
 

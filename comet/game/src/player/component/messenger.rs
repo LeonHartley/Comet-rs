@@ -1,6 +1,6 @@
-use core::{Component, Container};
-use player::Player;
+use container::{Component, Container};
 use model::player::PlayerAvatar;
+use player::Player;
 
 pub struct Messenger {
     friends: Vec<PlayerAvatar>

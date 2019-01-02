@@ -3,10 +3,11 @@ extern crate actix;
 extern crate log;
 extern crate model;
 extern crate protocol;
+extern crate core;
 
 pub mod player;
 pub mod ctx;
-pub mod core;
+pub mod container;
 
 #[cfg(test)]
 pub mod test;
