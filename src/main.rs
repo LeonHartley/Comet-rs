@@ -26,7 +26,6 @@ use std::any::Any;
 use std::any::TypeId;
 use std::collections::HashMap;
 use std::io::Write;
-use std::mem::transmute;
 use std::sync::Arc;
 
 pub fn main() {
