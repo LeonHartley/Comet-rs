@@ -6,6 +6,7 @@ extern crate conv;
 extern crate db;
 extern crate env_logger;
 extern crate futures;
+extern crate game;
 #[macro_use]
 extern crate log;
 extern crate model;
@@ -18,6 +19,8 @@ use clap::Arg;
 use conv::*;
 use db::ctx::DbContext;
 use env_logger::Builder;
+use game::ctx::GameContext;
+use game::player::service::PlayerService;
 use log::LevelFilter;
 use model::config::Config;
 use mysql::Pool;
@@ -75,8 +78,11 @@ pub fn main() {
 
     let db = SyncArbiter::start(config.database.executors, move || DbContext(pool.clone()));
 
+    let mut game = GameContext::new()
+        .init();
+
     Server::new(&config.game)
-        .start(db);
+        .start(db, Arc::new(game));
 
     info!(target: "boot", "Comet is starting");
 

@@ -22,6 +22,7 @@ pub struct PlayerServiceContext {
 struct OnlinePlayersMap {
     online_players_id: HashMap<i64, Addr<Player>>,
     online_players_name: HashMap<String, Addr<Player>>,
+}
 
 impl PlayerServiceContext {
     pub fn new() -> PlayerServiceContext {
