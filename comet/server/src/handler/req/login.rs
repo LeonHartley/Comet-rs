@@ -34,12 +34,13 @@ impl Handler<AuthenticateRequest> for ServerSession {
                     }
                 };
 
+                let game = act.game.clone();
                 let player = Arc::new(p);
                 let p = player.clone();
                 let recipient = ctx.address().recipient::<StreamMessage>();
                 act.set_player(PlayerContext {
                     addr: Player::create(move |_ctx| {
-                        Player::new(recipient, player.clone())
+                        Player::new(game, recipient, player.clone())
                     }),
                     data: p,
                 });

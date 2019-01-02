@@ -2,6 +2,7 @@ use actix::{Actor, Addr, Context, Handler, io::FramedWrite, io::WriteHandler, pr
 use codec::{GameCodec, IncomingMessage};
 use core::Server;
 use db::ctx::DbContext;
+use game::ctx::GameContext;
 use game::player::Player;
 use handler::MessageHandler;
 use protocol::buffer::{Buffer, StreamMessage};
@@ -25,16 +26,18 @@ type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 pub struct ServerSession {
     pub server: Addr<Server>,
     pub db: Addr<DbContext>,
+    pub game: Arc<GameContext>,
     pub stream: NetworkStream,
     player: Option<PlayerContext>,
     handler: MessageHandler,
 }
 
 impl ServerSession {
-    pub fn new(server: Addr<Server>, db: Addr<DbContext>, stream: NetworkStream) -> Self {
+    pub fn new(game: Arc<GameContext>, server: Addr<Server>, db: Addr<DbContext>, stream: NetworkStream) -> Self {
         Self {
             server,
             db,
+            game,
             stream,
             handler: MessageHandler::new(),
             player: None,
