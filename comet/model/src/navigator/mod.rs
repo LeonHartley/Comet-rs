@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum CategorySearchOption {
     Nothing,
     Back,
@@ -29,11 +30,12 @@ pub enum CategoryType {
     Promotion,
 }
 
+#[derive(Debug)]
 pub struct Category {
     pub id: i32,
     pub category: String,
+    pub category_id: String,
     pub name: String,
-    pub colour: i32,
     pub player_rank: i32,
     pub view_mode: CategoryViewMode,
     pub category_type: CategoryType,

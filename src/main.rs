@@ -52,10 +52,10 @@ pub fn main() {
     Builder::new()
         .format(move |buf, record| {
             writeln!(buf,
-                     "{} {} [{}] - {}",
+                     "{} [{}] {} - {}",
                      Local::now().format(&date_fmt),
-                     record.target(),
                      record.level(),
+                     record.target(),
                      record.args()
             )
         })

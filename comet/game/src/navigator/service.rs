@@ -23,7 +23,7 @@ impl Component for NavigatorServiceContext {
 }
 
 impl NavigatorServiceContext {
-    pub fn new(db: DbContext) -> NavigatorServiceContext {
+    pub fn new(mut db: DbContext) -> NavigatorServiceContext {
         NavigatorServiceContext {
             categories: RwLock::new(db
                 .get_navigator_categories()
