@@ -57,10 +57,6 @@ impl PlayerService for PlayerServiceContext {
             .lock()
             .expect("Failed to gain lock");
 
-        if let Some(addr) = players.online_players_id.get(&id) {
-            addr.do_send(Logout);
-        }
-
         players.online_players_id.insert(id, player.clone());
         players.online_players_name.insert(name, player);
     }
