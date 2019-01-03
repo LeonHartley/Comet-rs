@@ -20,3 +20,4 @@ conv = "0.3.3"
 server = { path = "comet/server" }
 db = { path = "comet/db" }
 model = { path = "comet/model" }
+game = { path = "comet/game" }

@@ -8,6 +8,7 @@ use protocol::buffer::StreamMessage;
 use session::PlayerContext;
 use session::ServerSession;
 use std::sync::Arc;
+use std::sync::RwLock;
 
 #[derive(Message)]
 pub struct AuthenticateRequest(pub String);
@@ -34,14 +35,15 @@ impl Handler<AuthenticateRequest> for ServerSession {
                     }
                 };
 
-                let player = Arc::new(p);
-                let p = player.clone();
+                let game = act.game.clone();
+                let player = Arc::new(RwLock::new(p));
+                let data = player.clone();
                 let recipient = ctx.address().recipient::<StreamMessage>();
                 act.set_player(PlayerContext {
                     addr: Player::create(move |_ctx| {
-                        Player::new(recipient, player.clone())
+                        Player::new(game, recipient, player.clone())
                     }),
-                    data: p,
+                    data,
                 });
 
                 ok(())

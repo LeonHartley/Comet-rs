@@ -2,11 +2,14 @@ use actix::{Actor, Addr, Context, Handler, io::FramedWrite, io::WriteHandler, pr
 use codec::{GameCodec, IncomingMessage};
 use core::Server;
 use db::ctx::DbContext;
-use game::player::Player;
+use game::ctx::GameContext;
+use game::player::{Logout, Player};
 use handler::MessageHandler;
 use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer;
 use std::{io, sync::Arc};
+use std::sync::Mutex;
+use std::sync::RwLock;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
 
@@ -17,7 +20,7 @@ pub enum SessionStatus {
 
 pub struct PlayerContext {
     pub addr: Addr<Player>,
-    pub data: Arc<model::player::Player>,
+    pub data: Arc<RwLock<model::player::Player>>,
 }
 
 type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
@@ -25,16 +28,18 @@ type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
 pub struct ServerSession {
     pub server: Addr<Server>,
     pub db: Addr<DbContext>,
+    pub game: Arc<GameContext>,
     pub stream: NetworkStream,
     player: Option<PlayerContext>,
     handler: MessageHandler,
 }
 
 impl ServerSession {
-    pub fn new(server: Addr<Server>, db: Addr<DbContext>, stream: NetworkStream) -> Self {
+    pub fn new(game: Arc<GameContext>, server: Addr<Server>, db: Addr<DbContext>, stream: NetworkStream) -> Self {
         Self {
             server,
             db,
+            game,
             stream,
             handler: MessageHandler::new(),
             player: None,
@@ -51,24 +56,18 @@ impl ServerSession {
         }
     }
 
-    pub fn player(&self) -> Option<Addr<Player>> {
+    pub fn player_actor(&self) -> Option<Addr<Player>> {
         match self.player {
             Some(ref ctx) => Some(ctx.addr.clone()),
             None => None
         }
     }
 
-    pub fn player_data(&self) -> Option<Arc<model::player::Player>> {
-        match self.player {
-            Some(ref ctx) => Some(ctx.data.clone()),
-            _ => None
-        }
-    }
-
-    pub fn player_balance(&self) -> Option<model::player::PlayerBalance> {
-        match self.player {
-            Some(ref ctx) => Some(ctx.data.balance),
-            _ => None
+    pub fn player(&mut self) -> &Arc<RwLock<model::player::Player>> {
+        if let Some(ref ctx) = self.player {
+            &ctx.data
+        } else {
+            panic!("Player not initialised")
         }
     }
 
@@ -126,5 +125,13 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
                 }
             }
         }
+    }
+
+    fn finished(&mut self, ctx: &mut Self::Context) {
+        if let Some(ref ctx) = self.player {
+            ctx.addr.do_send(Logout)
+        }
+
+        ctx.stop();
     }
 }

@@ -38,9 +38,9 @@ impl MessageHandler {
             Some(handler) => handler.as_ref(),
             None => {
                 if let Some(event) = EVENT_NAMES.get(&header) {
-                    debug!(target: "io", "{} / {} unhandled", &header, event);
+                    debug!(target: "io", "{} / {} unhandled - {:?}", &header, event, buffer.inner);
                 } else {
-                    debug!(target: "io", "{} unhandled", &header);
+                    debug!(target: "io", "{} unhandled - {:?}", &header, buffer.inner);
                 }
                 return;
             }
