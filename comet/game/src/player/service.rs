@@ -1,12 +1,15 @@
-use actix::Addr;
-use container::{Component, Container};
 use core::borrow::BorrowMut;
-use ctx::GameContext;
-use player::Player;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
+
+use actix::Addr;
+use container::{Component, Container};
+use ctx::GameContext;
 use player::Logout;
+use player::Player;
+
+use db::ctx::DbContext;
 
 pub trait PlayerService {
     fn is_player_online(&self, player_id: i64) -> bool;
@@ -17,7 +20,8 @@ pub trait PlayerService {
 }
 
 pub struct PlayerServiceContext {
-    online_players: Mutex<OnlinePlayersMap>
+    online_players: Mutex<OnlinePlayersMap>,
+    db: DbContext,
 }
 
 struct OnlinePlayersMap {
@@ -26,12 +30,13 @@ struct OnlinePlayersMap {
 }
 
 impl PlayerServiceContext {
-    pub fn new() -> PlayerServiceContext {
+    pub fn new(db: DbContext) -> PlayerServiceContext {
         PlayerServiceContext {
             online_players: Mutex::new(OnlinePlayersMap {
                 online_players_id: HashMap::new(),
                 online_players_name: HashMap::new(),
-            })
+            }),
+            db,
         }
     }
 }
@@ -57,7 +62,7 @@ impl PlayerService for PlayerServiceContext {
         }
 
         players.online_players_id.insert(id, player.clone());
-        players.online_players_name.insert(name, player.clone());
+        players.online_players_name.insert(name, player);
     }
 
     fn remove_online_player(&self, id: i64, name: String) {

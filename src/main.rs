@@ -13,23 +13,19 @@ extern crate model;
 extern crate mysql;
 extern crate server;
 
+use std::io::Write;
+use std::sync::Arc;
+
 use actix::SyncArbiter;
 use chrono::Local;
 use clap::Arg;
-use conv::*;
 use db::ctx::DbContext;
 use env_logger::Builder;
 use game::ctx::GameContext;
-use game::player::service::PlayerService;
 use log::LevelFilter;
 use model::config::Config;
 use mysql::Pool;
 use server::core::Server;
-use std::any::Any;
-use std::any::TypeId;
-use std::collections::HashMap;
-use std::io::Write;
-use std::sync::Arc;
 
 pub fn main() {
     let matches = clap::App::new("Comet Server")
@@ -76,13 +72,15 @@ pub fn main() {
 
     let pool = Pool::new({ config.database.connection_string }).unwrap();
 
-    let db = SyncArbiter::start(config.database.executors, move || DbContext(pool.clone()));
+    let cloned_pool = pool.clone();
+    let db = SyncArbiter::start(config.database.executors, move || DbContext(cloned_pool.clone()));
 
     let mut game = GameContext::new()
         .init();
 
     Server::new(&config.game)
-        .start(db, Arc::new(game));
+        .start(db, Arc::new(GameContext::new()
+            .init(DbContext(pool.clone()))));
 
     info!(target: "boot", "Comet is starting");
 

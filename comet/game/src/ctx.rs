@@ -1,6 +1,9 @@
-use container::{ComponentSet, Container};
-use player::service::PlayerServiceContext;
 use std::sync::{Arc, Mutex};
+
+use container::{ComponentSet, Container};
+use db::ctx::DbContext;
+use navigator::service::NavigatorServiceContext;
+use player::service::PlayerServiceContext;
 
 pub struct GameContext {
     components: ComponentSet
@@ -11,8 +14,9 @@ impl GameContext {
         GameContext { components: ComponentSet::new() }
     }
 
-    pub fn init(mut self) -> GameContext {
-        self.add_component(PlayerServiceContext::new());
+    pub fn init(mut self, db: DbContext) -> GameContext {
+        self.add_component(PlayerServiceContext::new(db.clone()));
+        self.add_component(NavigatorServiceContext::new(db));
 
         self
     }
