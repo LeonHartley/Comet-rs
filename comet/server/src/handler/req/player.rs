@@ -1,6 +1,5 @@
 use actix::{Context, Handler, Message};
-use protocol::composer::player::{credits_composer, messenger::messenger_config_composer, player_info_composer, points_balance_composer};
-use protocol::composer::player::achievement_points_composers;
+use protocol::composer::player::{credits_composer, messenger::messenger_config_composer, player_info_composer, points_balance_composer, achievement_points_composer};
 use session::ServerSession;
 
 

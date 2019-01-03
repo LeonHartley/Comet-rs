@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-
 use actix::Addr;
 use protocol::buffer::Buffer;
 use session::ServerSession;
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
 
 mod req;
 mod handshake;
