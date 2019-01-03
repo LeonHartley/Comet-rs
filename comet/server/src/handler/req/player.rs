@@ -17,7 +17,7 @@ impl Handler<InfoRetrieve> for ServerSession {
             credits_composer(player.balance.credits),
             messenger_config_composer(),
             points_balance_composer(&player.balance),
-            achievement_points_composers(player.achievement_points),
+            achievement_points_composer(player.achievement_points),
             player_info_composer(&player.avatar)
         ]);
     }

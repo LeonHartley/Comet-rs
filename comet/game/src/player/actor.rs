@@ -1,3 +1,7 @@
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::sync::RwLock;
+
 use actix::{Actor, ActorContext, AsyncContext, Context, Handler, Message, Recipient};
 use container::{ComponentSet, Container};
 use ctx::GameContext;
@@ -5,9 +9,6 @@ use model::player;
 use player::service::PlayerService;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::sync::RwLock;
 
 pub struct Player {
     game: Arc<GameContext>,
