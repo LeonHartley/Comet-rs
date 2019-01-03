@@ -15,8 +15,8 @@ impl GameContext {
     }
 
     pub fn init(mut self, db: DbContext) -> GameContext {
-        self.add_component(PlayerServiceContext::new(DbContext(db.0.clone())));
-        self.add_component(NavigatorServiceContext::new(DbContext(db.0.clone())));
+        self.add_component(PlayerServiceContext::new(db.clone()));
+        self.add_component(NavigatorServiceContext::new(db));
 
         self
     }
