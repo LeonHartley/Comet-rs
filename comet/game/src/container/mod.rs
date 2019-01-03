@@ -12,6 +12,8 @@ pub trait Container {
     fn components_mut(&mut self) -> &mut ComponentSet;
 
     fn add_component<T>(&mut self, component: T) where T: Component {
+        component.registered();
+
         self.components_mut().insert(component.typeid(), unsafe {
             transmute::<Box<Component>, Box<Any + Send + Sync>>(Box::new(component))
         });
@@ -31,4 +33,6 @@ pub trait Component: Any {
     fn typeid(&self) -> TypeId {
         TypeId::of::<Self>()
     }
+
+    fn registered(&self) {}
 }

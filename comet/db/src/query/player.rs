@@ -1,8 +1,9 @@
+use std::option::Option;
+
 use actix::{Handler, Message};
 use actix::SyncContext;
 use ctx::DbContext;
 use model::player::{Player, PlayerAvatar, PlayerBalance};
-use std::option::Option;
 
 trait PlayerRepository {
     fn player_by_ticket(&mut self, ticket: String) -> Option<Player>;

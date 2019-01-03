@@ -6,10 +6,9 @@ use std::sync::Mutex;
 use actix::Addr;
 use container::{Component, Container};
 use ctx::GameContext;
+use db::ctx::DbContext;
 use player::Logout;
 use player::Player;
-
-use db::ctx::DbContext;
 
 pub trait PlayerService {
     fn is_player_online(&self, player_id: i64) -> bool;
@@ -56,10 +55,6 @@ impl PlayerService for PlayerServiceContext {
         let mut players = self.online_players
             .lock()
             .expect("Failed to gain lock");
-
-        if let Some(addr) = players.online_players_id.get(&id) {
-            addr.do_send(Logout);
-        }
 
         players.online_players_id.insert(id, player.clone());
         players.online_players_name.insert(name, player);

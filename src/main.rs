@@ -52,9 +52,10 @@ pub fn main() {
     Builder::new()
         .format(move |buf, record| {
             writeln!(buf,
-                     "{} [{}] - {}",
+                     "{} [{}] {} - {}",
                      Local::now().format(&date_fmt),
                      record.level(),
+                     record.target(),
                      record.args()
             )
         })
@@ -68,6 +69,8 @@ pub fn main() {
         })
         .init();
 
+    info!("Comet is starting");
+
     let system = actix::System::new("comet-server");
 
     let pool = Pool::new({ config.database.connection_string }).unwrap();
@@ -75,14 +78,9 @@ pub fn main() {
     let cloned_pool = pool.clone();
     let db = SyncArbiter::start(config.database.executors, move || DbContext(cloned_pool.clone()));
 
-    let mut game = GameContext::new()
-        .init();
-
     Server::new(&config.game)
         .start(db, Arc::new(GameContext::new()
             .init(DbContext(pool.clone()))));
-
-    info!(target: "boot", "Comet is starting");
 
     let _ = system.run();
 }
