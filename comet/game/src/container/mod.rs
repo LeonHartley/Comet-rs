@@ -25,15 +25,6 @@ pub trait Container {
             .downcast_ref::<T>()
             .expect("Invalid component type")
     }
-
-    fn component_mut<T>(&mut self) -> &mut T where T: Component {
-        &mut *self
-            .components_mut()
-            .get_mut(&TypeId::of::<T>())
-            .expect("Components are not configured!")
-            .downcast_mut::<T>()
-            .expect("Invalid component type")
-    }
 }
 
 pub trait Component: Any {

@@ -20,12 +20,6 @@ impl Player {
     pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: Arc<RwLock<player::Player>>) -> Player {
         Player { game, stream, inner, components: ComponentSet::new() }
     }
-
-    pub fn game(&self) -> &Arc<GameContext> { &self.game }
-
-    pub fn game_mut(&mut self) -> &mut GameContext {
-        Arc::get_mut(&mut self.game).expect("No game context")
-    }
 }
 
 impl Container for Player {
@@ -70,6 +64,7 @@ impl Handler<Logout> for Player {
     type Result = ();
 
     fn handle(&mut self, msg: Logout, ctx: &mut Context<Player>) {
+        self.stream.do_send(StreamMessage::Close);
         ctx.stop();
     }
 }

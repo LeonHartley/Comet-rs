@@ -6,6 +6,7 @@ use player::Player;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
+use player::Logout;
 
 pub trait PlayerService {
     fn is_player_online(&self, player_id: i64) -> bool;
@@ -50,7 +51,11 @@ impl PlayerService for PlayerServiceContext {
         let mut players = self.online_players
             .lock()
             .expect("Failed to gain lock");
-        println!("Adding player {} {}", id, name);
+
+        if let Some(addr) = players.online_players_id.get(&id) {
+            addr.do_send(Logout);
+        }
+
         players.online_players_id.insert(id, player.clone());
         players.online_players_name.insert(name, player.clone());
     }
@@ -60,7 +65,6 @@ impl PlayerService for PlayerServiceContext {
             .lock()
             .expect("Failed to gain lock");
 
-        println!("Removing player {} {}", id, name);
         players.online_players_id.remove(&id);
         players.online_players_name.remove(&name);
     }
