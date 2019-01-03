@@ -3,11 +3,13 @@ use codec::{GameCodec, IncomingMessage};
 use core::Server;
 use db::ctx::DbContext;
 use game::ctx::GameContext;
-use game::player::Player;
+use game::player::{Logout, Player};
 use handler::MessageHandler;
 use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer;
 use std::{io, sync::Arc};
+use std::sync::Mutex;
+use std::sync::RwLock;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
 
@@ -18,7 +20,7 @@ pub enum SessionStatus {
 
 pub struct PlayerContext {
     pub addr: Addr<Player>,
-    pub data: Arc<model::player::Player>,
+    pub data: Arc<RwLock<model::player::Player>>,
 }
 
 type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
@@ -54,24 +56,18 @@ impl ServerSession {
         }
     }
 
-    pub fn player(&self) -> Option<Addr<Player>> {
+    pub fn player_actor(&self) -> Option<Addr<Player>> {
         match self.player {
             Some(ref ctx) => Some(ctx.addr.clone()),
             None => None
         }
     }
 
-    pub fn player_data(&self) -> Option<Arc<model::player::Player>> {
-        match self.player {
-            Some(ref ctx) => Some(ctx.data.clone()),
-            _ => None
-        }
-    }
-
-    pub fn player_balance(&self) -> Option<model::player::PlayerBalance> {
-        match self.player {
-            Some(ref ctx) => Some(ctx.data.balance),
-            _ => None
+    pub fn player(&mut self) -> &Arc<RwLock<model::player::Player>> {
+        if let Some(ref ctx) = self.player {
+            &ctx.data
+        } else {
+            panic!("Player not initialised")
         }
     }
 
@@ -129,5 +125,13 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
                 }
             }
         }
+    }
+
+    fn finished(&mut self, ctx: &mut Self::Context) {
+        if let Some(ref ctx) = self.player {
+            ctx.addr.do_send(Logout)
+        }
+
+        ctx.stop();
     }
 }

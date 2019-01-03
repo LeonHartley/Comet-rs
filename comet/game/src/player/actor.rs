@@ -1,5 +1,4 @@
-use actix::{Actor, Context, Recipient};
-use actix::AsyncContext;
+use actix::{Actor, ActorContext, AsyncContext, Context, Handler, Message, Recipient};
 use container::{ComponentSet, Container};
 use ctx::GameContext;
 use model::player;
@@ -7,24 +6,26 @@ use player::service::PlayerService;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 use std::sync::Arc;
+use std::sync::Mutex;
+use std::sync::RwLock;
 
 pub struct Player {
     game: Arc<GameContext>,
     stream: Recipient<StreamMessage>,
-    inner: Arc<player::Player>,
+    inner: Arc<RwLock<player::Player>>,
     components: ComponentSet,
 }
 
 impl Player {
-    pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: Arc<player::Player>) -> Player {
+    pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: Arc<RwLock<player::Player>>) -> Player {
         Player { game, stream, inner, components: ComponentSet::new() }
     }
 
-    pub fn data(&self) -> &player::Player { &self.inner }
+    pub fn game(&self) -> &Arc<GameContext> { &self.game }
 
-    pub fn game(&self) -> &GameContext { self.game.as_ref() }
-
-    pub fn game_mut(&mut self) -> &mut GameContext { Arc::get_mut(&mut self.game).expect("No game context") }
+    pub fn game_mut(&mut self) -> &mut GameContext {
+        Arc::get_mut(&mut self.game).expect("No game context")
+    }
 }
 
 impl Container for Player {
@@ -37,23 +38,38 @@ impl Actor for Player {
     type Context = Context<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        let avatar = &self.data().avatar;
+        if let Ok(player) = self.inner.read() {
+            info!("{} logged in", player.avatar.name);
 
-        self.game_mut().add_online_player(
-            ctx.address(),
-            avatar.id,
-            avatar.name.clone());
+            self.game.add_online_player(ctx.address(), player.avatar.id, player.avatar.name.clone());
 
-        let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
-            auth_ok_composer(),
-            fuserights_composer(self.data().rank, true),
-            allowances_composer(),
-            motd_composer(format!("data: {:?}", self.data()))
-        ]));
+            let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
+                auth_ok_composer(),
+                fuserights_composer(player.rank, true),
+                allowances_composer(),
+                motd_composer(format!("data: {:?}", player))
+            ]));
+        }
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
-        info!("{} logged out", self.data().avatar.name);
-        // Distribute any messages to notify friends/rooms
+        if let Ok(player) = self.inner.read() {
+            info!("{} logged out", player.avatar.name);
+
+            self.game.remove_online_player(player.avatar.id, player.avatar.name.clone());
+
+            // Distribute any messages to notify friends/rooms
+        }
+    }
+}
+
+#[derive(Message)]
+pub struct Logout;
+
+impl Handler<Logout> for Player {
+    type Result = ();
+
+    fn handle(&mut self, msg: Logout, ctx: &mut Context<Player>) {
+        ctx.stop();
     }
 }
