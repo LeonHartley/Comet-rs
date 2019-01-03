@@ -30,24 +30,24 @@ pub enum CategoryType {
 }
 
 pub struct Category {
-    id: i32,
-    category: String,
-    name: String,
-    colour: i32,
-    player_rank: i32,
-    view_mode: CategoryViewMode,
-    category_type: CategoryType,
-    search_option: CategorySearchOption,
-    room_count: i32,
-    room_count_expanded: i32,
-    visible: bool,
+    pub id: i32,
+    pub category: String,
+    pub name: String,
+    pub colour: i32,
+    pub player_rank: i32,
+    pub view_mode: CategoryViewMode,
+    pub category_type: CategoryType,
+    pub search_option: CategorySearchOption,
+    pub room_count: i32,
+    pub room_count_expanded: i32,
+    pub visible: bool,
 }
 
 impl From<String> for CategoryViewMode {
     fn from(view_mode: String) -> Self {
         match view_mode.to_lowercase().as_ref() {
             "thumbnail" => CategoryViewMode::Thumbnail,
-            _ => CategoryViewMode::Reglar
+            _ => CategoryViewMode::Regular
         }
     }
 }

@@ -5,7 +5,7 @@ use handler::req::login::AuthenticateRequest;
 
 pub fn client_version_handler(buf: &mut Buffer, _: Addr<ServerSession>) {
     match buf.read_string() {
-        Some(s) => debug!(target: "io", "client version: {}", s),
+        Some(s) => debug!("client version: {}", s),
         _ => return
     };
 }

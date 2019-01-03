@@ -38,7 +38,7 @@ impl Into<Category> for CategoryQueryResult {
             search_option: self.search_option.into(),
             room_count: self.room_count,
             room_count_expanded: self.room_count_expanded,
-            visible: self.visibile,
+            visible: self.visible,
         }
     }
 }

@@ -35,7 +35,7 @@ impl TcpServer {
                     .map(|s| TcpConnect(s)),
             );
 
-            info!(target: "io", "Server started on addr: {}", &addr);
+            info!("Server started on addr: {}", &addr);
             TcpServer { server, db, game }
         });
     }

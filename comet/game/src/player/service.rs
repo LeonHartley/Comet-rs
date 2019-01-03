@@ -6,10 +6,9 @@ use std::sync::Mutex;
 use actix::Addr;
 use container::{Component, Container};
 use ctx::GameContext;
+use db::ctx::DbContext;
 use player::Logout;
 use player::Player;
-
-use db::ctx::DbContext;
 
 pub trait PlayerService {
     fn is_player_online(&self, player_id: i64) -> bool;
