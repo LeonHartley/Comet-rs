@@ -7,6 +7,9 @@ extern crate lazy_static;
 extern crate log;
 extern crate model;
 extern crate protocol;
+extern crate core;
+#[macro_use]
+extern crate lazy_static;
 
 pub mod player;
 pub mod navigator;

@@ -75,6 +75,9 @@ pub fn main() {
     let cloned_pool = pool.clone();
     let db = SyncArbiter::start(config.database.executors, move || DbContext(cloned_pool.clone()));
 
+    let mut game = GameContext::new()
+        .init();
+
     Server::new(&config.game)
         .start(db, Arc::new(GameContext::new()
             .init(DbContext(pool.clone()))));
