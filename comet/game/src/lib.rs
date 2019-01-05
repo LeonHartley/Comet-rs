@@ -1,6 +1,7 @@
 extern crate actix;
 extern crate core;
 extern crate db;
+#[macro_use]
 extern crate log;
 extern crate model;
 extern crate protocol;

@@ -1,4 +1,5 @@
 use ctx::DbContext;
+use query::DbQueryExecutor;
 use model::navigator::Category;
 
 pub trait NavigatorRepository {
@@ -10,7 +11,7 @@ struct CategoryQueryResult {
     category: String,
     category_id: String,
     name: String,
-    player_rank: i32,
+    player_rank: i16,
     view_mode: String,
     category_type: String,
     search_option: String,
@@ -39,20 +40,15 @@ impl Into<Category> for CategoryQueryResult {
 
 impl NavigatorRepository for DbContext {
     fn get_navigator_categories(&mut self) -> Option<Vec<Category>> {
-        match self
-            .pool()
-            .prep_exec("SELECT id, category, category_identifier AS category_id, public_name AS name, required_rank AS player_rank, view_mode, category_type, search_allowance AS search_option, room_count, room_count_expanded, visible FROM navigator_categories;", ())
-            .map(|res| {
-                res.map(|x| x.unwrap()).map(|row| {
-                    let (id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible) = mysql::from_row(row);
-                    CategoryQueryResult { id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible }.into()
-                }).collect()
-            }) {
-            Ok(categories) => Some(categories),
-            Err(e) => {
-                error!("MySQL Error {:?}", e);
-                None
-            }
-        }
+        self.exec_select(r"
+            SELECT
+                id, category, category_identifier AS category_id,
+                public_name AS name, required_rank AS player_rank,
+                view_mode, category_type, search_allowance AS search_option,
+                room_count, room_count_expanded, visible
+            FROM navigator_categories;", (), |row| {
+            let (id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible) = mysql::from_row(row);
+            CategoryQueryResult { id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible }.into()
+        })
     }
 }

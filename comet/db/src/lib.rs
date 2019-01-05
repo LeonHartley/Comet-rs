@@ -1,3 +1,5 @@
+#![feature(duration_as_u128)]
+
 extern crate actix;
 #[macro_use]
 extern crate log;
