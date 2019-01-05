@@ -30,7 +30,7 @@ pub struct ServerSession {
     pub db: Addr<DbContext>,
     pub game: Arc<GameContext>,
     pub stream: NetworkStream,
-    player: Option<PlayerContext>,
+    pub player: Option<PlayerContext>,
     handler: MessageHandler,
 }
 
@@ -129,7 +129,7 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
 
     fn finished(&mut self, ctx: &mut Self::Context) {
         if let Some(ref ctx) = self.player {
-            ctx.addr.do_send(Logout)
+//            ctx.addr.do_send(Logout)
         }
 
         ctx.stop();

@@ -9,6 +9,7 @@ use session::ServerSession;
 mod req;
 mod handshake;
 mod player;
+mod navigator;
 
 lazy_static! {
     static ref EVENT_NAMES: HashMap<i16, String> = {

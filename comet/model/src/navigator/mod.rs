@@ -1,17 +1,17 @@
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 pub enum CategorySearchOption {
     Nothing,
     Back,
     ShowMore,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy)]
 pub enum CategoryViewMode {
     Regular,
     Thumbnail,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy)]
 pub enum CategoryType {
     Category,
     Public,
@@ -43,6 +43,44 @@ pub struct Category {
     pub room_count: i32,
     pub room_count_expanded: i32,
     pub visible: bool,
+}
+
+impl Clone for Category {
+    fn clone(&self) -> Self {
+        Self {
+            id: self.id,
+            category: self.category.clone(),
+            category_id: self.category_id.clone(),
+            name: self.name.clone(),
+            player_rank: self.player_rank,
+            view_mode: self.view_mode,
+            category_type: self.category_type,
+            search_option: self.search_option.clone(),
+            room_count: self.room_count,
+            room_count_expanded: self.room_count_expanded,
+            visible: self.visible,
+        }
+    }
+}
+
+impl Clone for CategoryViewMode {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+
+impl Clone for CategorySearchOption {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+
+impl Clone for CategoryType {
+    fn clone(&self) -> Self {
+        *self
+    }
 }
 
 impl From<String> for CategoryViewMode {
