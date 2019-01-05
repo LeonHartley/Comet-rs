@@ -1,9 +1,9 @@
-use std::option::Option;
-
 use actix::{Handler, Message};
 use actix::SyncContext;
-use ctx::{DbContext, DbQueryExecutor};
+use ctx::DbContext;
 use model::player::{Player, PlayerAvatar, PlayerBalance};
+use query::DbQueryExecutor;
+use std::option::Option;
 
 trait PlayerRepository {
     fn player_by_ticket(&mut self, ticket: String) -> Option<Player>;
@@ -57,26 +57,23 @@ impl Into<Player> for PlayerQueryResult {
 
 impl PlayerRepository for DbContext {
     fn player_by_ticket(&mut self, ticket: String) -> Option<Player> {
-        let result: Result<Vec<Player>, _> = self
-            .pool()
-            .prep_exec("SELECT id, username AS name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, `rank`, achievement_points
-                              FROM players WHERE auth_ticket = :ticket;", params! {"ticket" => ticket})
-            .map(|res| {
-                res.map(|x| x.unwrap()).map(|row| {
-                    let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points) = mysql::from_row(row);
-                    PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points }.into()
-                }).collect()
-            });
+        let res = self.exec_select(r"
+            SELECT
+                id, username AS name, figure, motto, gender, credits,
+                vip_points, seasonal_points, activity_points, `rank`, achievement_points
+            FROM players
+            WHERE auth_ticket = :ticket;", params! {"ticket" => ticket}, |row| {
+            let (id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points) = mysql::from_row(row);
+            PlayerQueryResult { id, name, figure, motto, gender, credits, vip_points, seasonal_points, activity_points, rank, achievement_points }.into()
+        });
 
-        if let Ok(players) = result {
-            return players
+        if let Some(res) = res {
+            res
                 .into_iter()
-                .next();
-        } else if let Err(e) = result {
-            error!("MySQL Error: {:?}", e);
+                .next()
+        } else {
+            None
         }
-
-        None
     }
 
     fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerAvatar>> {

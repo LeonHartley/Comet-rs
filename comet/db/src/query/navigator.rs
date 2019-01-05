@@ -1,5 +1,5 @@
 use ctx::DbContext;
-use ctx::DbQueryExecutor;
+use query::DbQueryExecutor;
 use model::navigator::Category;
 
 pub trait NavigatorRepository {
@@ -41,12 +41,12 @@ impl Into<Category> for CategoryQueryResult {
 impl NavigatorRepository for DbContext {
     fn get_navigator_categories(&mut self) -> Option<Vec<Category>> {
         self.exec_select(r"
-        SELECT
-            id, category, category_identifier AS category_id,
-            public_name AS name, required_rank AS player_rank,
-            view_mode, category_type, search_allowance AS search_option,
-            room_count, room_count_expanded, visible
-        FROM navigator_categories;", (), |row| {
+            SELECT
+                id, category, category_identifier AS category_id,
+                public_name AS name, required_rank AS player_rank,
+                view_mode, category_type, search_allowance AS search_option,
+                room_count, room_count_expanded, visible
+            FROM navigator_categories;", (), |row| {
             let (id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible) = mysql::from_row(row);
             CategoryQueryResult { id, category, category_id, name, player_rank, view_mode, category_type, search_option, room_count, room_count_expanded, visible }.into()
         })
