@@ -2,7 +2,7 @@ use std::option::Option;
 
 use actix::{Handler, Message};
 use actix::SyncContext;
-use ctx::DbContext;
+use ctx::{DbContext, DbQueryExecutor};
 use model::player::{Player, PlayerAvatar, PlayerBalance};
 
 trait PlayerRepository {
