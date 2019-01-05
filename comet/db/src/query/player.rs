@@ -106,9 +106,15 @@ impl Handler<PlayerByLoginTicket> for DbContext {
 
     fn handle(&mut self, msg: PlayerByLoginTicket, _ctx: &mut SyncContext<Self>) -> Self::Result {
         let time = Instant::now();
-        let mut player = self.player_by_ticket(msg.0).or_else(|| { return None; });
-        player.friends = match self.player_friends(player.avatar.id)
-            .or_else(|| { return None; });
+        let mut player = match self.player_by_ticket(msg.0) {
+            Some(player) => player,
+            None => return None
+        };
+
+        player.friends = match self.player_friends(player.avatar.id) {
+            Some(friends) => friends,
+            None => return None
+        };
 
         debug!("Loaded player data in {}ms", time.elapsed().as_millis());
         Some(player)
