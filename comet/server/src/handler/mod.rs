@@ -51,8 +51,10 @@ impl MessageHandler {
 
         let time = Instant::now();
         handler(buffer, session);
-
-        debug!("{} handled in {} ms ", EVENT_NAMES.get(&header).unwrap(), time.elapsed().as_millis());
+        debug!("{} / {} event handled in {} ms ", match EVENT_NAMES.get(&header) {
+            Some(h) => h.as_ref(),
+            _ => "Unknown"
+        }, header, time.elapsed().as_millis());
     }
 }
 
