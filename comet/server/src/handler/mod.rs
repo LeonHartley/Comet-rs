@@ -1,11 +1,10 @@
+use actix::Addr;
+use protocol::buffer::Buffer;
+use session::ServerSession;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
-
-use actix::Addr;
-use protocol::buffer::Buffer;
-use session::ServerSession;
 
 mod req;
 mod handshake;
@@ -60,12 +59,16 @@ impl MessageHandler {
 }
 
 fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
-    map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
-    map.insert(SSO_TICKET_EVENT, Box::new(handshake::authentication_handler));
-    map.insert(INFO_RETRIEVE_EVENT, Box::new(player::info_retrieve));
-    map.insert(ROOM_CATEGORIES_EVENT, Box::new(navigator::room_categories_handler));
+    message_handlers()
+        .into_iter()
+        .collect()
+}
 
-    map
+fn message_handlers() -> Vec<(i16, Box<HandlerFunc>)> {
+    vec![(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler)),
+         (SSO_TICKET_EVENT, Box::new(handshake::authentication_handler)),
+         (INFO_RETRIEVE_EVENT, Box::new(player::info_retrieve)),
+         (ROOM_CATEGORIES_EVENT, Box::new(navigator::room_categories_handler))]
 }
 
 fn load_identifiers() -> HashMap<i16, String> {
