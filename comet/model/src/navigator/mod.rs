@@ -36,7 +36,7 @@ pub struct Category {
     pub category: String,
     pub category_id: String,
     pub name: String,
-    pub player_rank: i32,
+    pub player_rank: i16,
     pub view_mode: CategoryViewMode,
     pub category_type: CategoryType,
     pub search_option: CategorySearchOption,

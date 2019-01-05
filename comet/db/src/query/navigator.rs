@@ -10,7 +10,7 @@ struct CategoryQueryResult {
     category: String,
     category_id: String,
     name: String,
-    player_rank: i32,
+    player_rank: i16,
     view_mode: String,
     category_type: String,
     search_option: String,

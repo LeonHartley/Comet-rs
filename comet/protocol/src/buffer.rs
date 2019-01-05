@@ -100,11 +100,11 @@ impl Buffer {
         buf.put_slice(self.inner.as_ref());
     }
 
-    pub fn write_vec<T, F>(mut self, vec: Vec<T>, writer: F) -> Self
-        where F: Fn(T, Self) -> Self {
-        let mut buf = self;
+    pub fn write_vec<T, F>(mut self, vec: &Vec<T>, writer: F) -> Self
+        where F: Fn(&T, Self) -> Self {
+        let mut buf = self.write_i32(vec.len() as i32);
 
-        for val in vec.into_iter() {
+        for val in vec {
             buf = writer(val, buf);
         }
 

@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-
 use actix::Addr;
 use protocol::buffer::Buffer;
 use session::ServerSession;
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
+use std::time::Instant;
 
 mod req;
 mod handshake;
@@ -23,6 +23,7 @@ type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
 const CLIENT_VERSION_EVENT: i16 = 4000;
 const SSO_TICKET_EVENT: i16 = 286;
 const INFO_RETRIEVE_EVENT: i16 = 2401;
+const ROOM_CATEGORIES_EVENT: i16 = 1761;
 
 pub struct MessageHandler {
     handlers: HandlerMap
@@ -48,7 +49,10 @@ impl MessageHandler {
             }
         };
 
+        let time = Instant::now();
         handler(buffer, session);
+
+        debug!("{} handled in {} ms ", EVENT_NAMES.get(&header).unwrap(), time.elapsed().as_millis());
     }
 }
 
@@ -56,6 +60,7 @@ fn register_message_handlers(mut map: HandlerMap) -> HandlerMap {
     map.insert(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler));
     map.insert(SSO_TICKET_EVENT, Box::new(handshake::authentication_handler));
     map.insert(INFO_RETRIEVE_EVENT, Box::new(player::info_retrieve));
+    map.insert(ROOM_CATEGORIES_EVENT, Box::new(navigator::room_categories_handler));
 
     map
 }

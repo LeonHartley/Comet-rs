@@ -11,9 +11,9 @@ use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 
 pub struct Player {
-    game: Arc<GameContext>,
-    stream: Recipient<StreamMessage>,
-    inner: Arc<RwLock<player::Player>>,
+    pub inner: Arc<RwLock<player::Player>>,
+    pub stream: Recipient<StreamMessage>,
+    pub game: Arc<GameContext>,
     components: ComponentSet,
 }
 
