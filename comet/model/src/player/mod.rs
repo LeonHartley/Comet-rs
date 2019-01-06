@@ -1,12 +1,15 @@
+use player::messenger::PlayerFriend;
+
+pub mod messenger;
+
 #[derive(Debug)]
 pub struct Player {
     pub avatar: PlayerAvatar,
-    pub friends: Vec<PlayerAvatar>,
+    pub friends: Vec<PlayerFriend>,
     pub rank: i16,
     pub achievement_points: i32,
     pub balance: PlayerBalance,
 }
-
 
 #[derive(Debug)]
 pub struct PlayerAvatar {

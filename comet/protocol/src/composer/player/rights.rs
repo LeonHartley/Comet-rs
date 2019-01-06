@@ -28,7 +28,6 @@ pub fn allowances_composer() -> Buffer {
     ];
 
     Buffer::empty(3189)
-        .write_i32(allowances.len() as i32)
         .write_vec(&allowances, |(key, s, enabled), buf|
             buf
                 .write_str(&key)

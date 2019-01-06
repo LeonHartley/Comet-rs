@@ -23,7 +23,7 @@ impl Handler<RoomCategories> for Player {
 
     fn handle(&mut self, msg: RoomCategories, ctx: &mut Context<Self>) {
         if let Ok(player) = self.inner.read() {
-            self.stream.do_send(StreamMessage::Send(
+            let _ = self.stream.do_send(StreamMessage::Send(
                 room_categories_composer(self.game.get_room_categories(), player.rank)));
         }
     }

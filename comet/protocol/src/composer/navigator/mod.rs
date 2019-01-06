@@ -12,3 +12,9 @@ pub fn room_categories_composer(categories: Vec<Category>, rank: i16) -> Buffer 
             .write_i16(0)
             .write_bool(false))
 }
+
+pub fn home_room_composer(home_room: i64) -> Buffer {
+    Buffer::empty(1776)
+        .write_i32(home_room as i32)
+        .write_i32(home_room as i32)
+}

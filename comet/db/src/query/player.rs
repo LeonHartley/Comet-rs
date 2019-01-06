@@ -2,6 +2,7 @@ use actix::{Handler, Message};
 use actix::SyncContext;
 use ctx::DbContext;
 use model::player::{Player, PlayerAvatar, PlayerBalance};
+use model::player::messenger::PlayerFriend;
 use query::DbQueryExecutor;
 use std::option::Option;
 use std::time::Instant;
@@ -9,7 +10,7 @@ use std::time::Instant;
 trait PlayerRepository {
     fn player_by_ticket(&mut self, ticket: String) -> Option<Player>;
 
-    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerAvatar>>;
+    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerFriend>>;
 }
 
 pub struct PlayerByLoginTicket(pub String);
@@ -55,6 +56,11 @@ impl Into<Player> for PlayerQueryResult {
     }
 }
 
+struct PlayerFriendResult {
+    avatar: PlayerAvatarResult,
+    level: i16,
+}
+
 struct PlayerAvatarResult {
     id: i64,
     name: String,
@@ -75,6 +81,15 @@ impl Into<PlayerAvatar> for PlayerAvatarResult {
     }
 }
 
+impl Into<PlayerFriend> for PlayerFriendResult {
+    fn into(self) -> PlayerFriend {
+        PlayerFriend {
+            avatar: self.avatar.into(),
+            level: self.level,
+        }
+    }
+}
+
 impl PlayerRepository for DbContext {
     fn player_by_ticket(&mut self, ticket: String) -> Option<Player> {
         self.exec_select(r"
@@ -88,15 +103,15 @@ impl PlayerRepository for DbContext {
         }).and_then(|p| p.into_iter().next())
     }
 
-    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerAvatar>> {
+    fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerFriend>> {
         self.exec_select(r"
             SELECT
-                p.id, p.username as name, p.figure, p.motto, p.gender
+                p.id, p.username as name, p.figure, p.motto, p.gender, f.friendship_level as level
             FROM messenger_friendships f
             JOIN players p ON p.id = f.user_two_id
             WHERE f.user_one_id = :player_id", params! { "player_id" => player_id }, |row| {
-            let (id, name, figure, motto, gender) = mysql::from_row(row);
-            PlayerAvatarResult { id, name, figure, motto, gender }.into()
+            let (id, name, figure, motto, gender, level) = mysql::from_row(row);
+            PlayerFriendResult { level, avatar: PlayerAvatarResult { id, name, figure, motto, gender } }.into()
         })
     }
 }
