@@ -1,7 +1,7 @@
 use actix::{Context, Handler, Message};
+use protocol::composer::navigator::home_room_composer;
 use protocol::composer::player::{achievement_points_composer, credits_composer, messenger::messenger_config_composer, player_info_composer, points_balance_composer};
 use session::ServerSession;
-use protocol::composer::navigator::home_room_composer;
 
 
 #[derive(Message)]
@@ -20,7 +20,7 @@ impl Handler<InfoRetrieve> for ServerSession {
             points_balance_composer(&player.balance),
             achievement_points_composer(player.achievement_points),
             player_info_composer(&player.avatar),
-            home_room_composer(0)
+            home_room_composer(player.settings.home_room)
         ]);
     }
 }

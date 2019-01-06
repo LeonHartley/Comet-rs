@@ -24,6 +24,7 @@ const CLIENT_VERSION_EVENT: i16 = 4000;
 const SSO_TICKET_EVENT: i16 = 286;
 const INFO_RETRIEVE_EVENT: i16 = 2401;
 const ROOM_CATEGORIES_EVENT: i16 = 1761;
+const INIT_NAVIGATOR_EVENT: i16 = 3231;
 
 pub struct MessageHandler {
     handlers: HandlerMap
@@ -68,7 +69,8 @@ fn message_handlers() -> Vec<(i16, Box<HandlerFunc>)> {
     vec![(CLIENT_VERSION_EVENT, Box::new(handshake::client_version_handler)),
          (SSO_TICKET_EVENT, Box::new(handshake::authentication_handler)),
          (INFO_RETRIEVE_EVENT, Box::new(player::info_retrieve)),
-         (ROOM_CATEGORIES_EVENT, Box::new(navigator::room_categories_handler))]
+         (ROOM_CATEGORIES_EVENT, Box::new(navigator::room_categories_handler)),
+         (INIT_NAVIGATOR_EVENT, Box::new(navigator::initialise_handler))]
 }
 
 fn load_identifiers() -> HashMap<i16, String> {
