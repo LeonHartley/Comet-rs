@@ -1,6 +1,5 @@
 use buffer::Buffer;
-use model::player::{PlayerBalance};
-use model::player::PlayerAvatar;
+use model::player::{PlayerAvatar, PlayerBalance};
 
 pub mod rights;
 pub mod messenger;
@@ -29,9 +28,8 @@ pub fn credits_composer(credits: i32) -> Buffer {
 }
 
 pub fn points_balance_composer(balance: &PlayerBalance) -> Buffer {
-    let mut buf = Buffer::empty(3304);
-
-    buf.write_i32(0)
+    Buffer::empty(3304)
+        .write_i32(0)
 }
 
 pub fn achievement_points_composer(points: i32) -> Buffer {
