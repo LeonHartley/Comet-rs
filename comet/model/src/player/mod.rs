@@ -1,7 +1,5 @@
 use player::messenger::PlayerFriend;
-use player::settings::MessengerSettings;
-use player::settings::NavigatorSettings;
-use player::settings::PlayerSettings;
+use player::settings::{MessengerSettings, NavigatorSettings, PlayerSettings};
 
 pub mod messenger;
 pub mod settings;
