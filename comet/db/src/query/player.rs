@@ -18,12 +18,6 @@ trait PlayerRepository {
     fn player_friends(&mut self, player_id: i64) -> Option<Vec<PlayerFriend>>;
 }
 
-pub struct PlayerByLoginTicket(pub String);
-
-impl Message for PlayerByLoginTicket {
-    type Result = Option<Player>;
-}
-
 struct PlayerQueryResult {
     id: i64,
     name: String,
@@ -86,7 +80,6 @@ impl FromRow for PlayerQueryResult {
         })
     }
 }
-
 
 impl Into<Player> for PlayerQueryResult {
     fn into(self) -> Player {
@@ -191,6 +184,12 @@ impl PlayerRepository for DbContext {
             PlayerFriendResult { level, avatar: PlayerAvatarResult { id, name, figure, motto, gender } }.into()
         })
     }
+}
+
+pub struct PlayerByLoginTicket(pub String);
+
+impl Message for PlayerByLoginTicket {
+    type Result = Option<Player>;
 }
 
 impl Handler<PlayerByLoginTicket> for DbContext {

@@ -32,6 +32,9 @@ pub fn navigator_settings_composer(settings: &NavigatorSettings) -> Buffer {
 
 pub fn navigator_metadata_composer() -> Buffer {
     Buffer::empty(2631)
-        .write_vec(&vec!["official_view", "hotel_view", "roomads_view", "myworld_view"],
-                   |v, buf| buf.write_str(&v.to_string()).write_i32(0))
+        .write_vec(
+            &vec!["official_view", "hotel_view", "roomads_view", "myworld_view"],
+            |v, buf| buf
+                .write_str(&v.to_string())
+                .write_i32(0))
 }
