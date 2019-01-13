@@ -2,6 +2,7 @@ use ctx::DbContext;
 
 pub mod player;
 pub mod navigator;
+pub mod room;
 
 pub trait DbQueryExecutor {
     fn exec_select<T, Q, F, P>(&mut self, query: Q, params: P, reader: F) -> Option<Vec<T>>
