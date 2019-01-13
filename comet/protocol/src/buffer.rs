@@ -70,6 +70,13 @@ impl Buffer {
         self
     }
 
+    pub fn write_i16(mut self, i: i16) -> Self {
+        self.inner.reserve(2);
+        self.inner.put_i16_be(i);
+
+        self
+    }
+
     pub fn write_str(mut self, s: &String) -> Self {
         self.inner.reserve(2 + s.len());
         self.inner.put_i16_be(s.len() as i16);
@@ -91,6 +98,17 @@ impl Buffer {
         buf.put_i32_be((self.inner.len() as i32) + 2);
         buf.put_i16_be(self.id);
         buf.put_slice(self.inner.as_ref());
+    }
+
+    pub fn write_vec<T, F>(mut self, vec: &Vec<T>, writer: F) -> Self
+        where F: Fn(&T, Self) -> Self {
+        let mut buf = self.write_i32(vec.len() as i32);
+
+        for val in vec {
+            buf = writer(val, buf);
+        }
+
+        buf
     }
 
     pub fn bytes(&self) -> &[u8] {

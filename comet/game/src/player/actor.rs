@@ -1,7 +1,3 @@
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::sync::RwLock;
-
 use actix::{Actor, ActorContext, AsyncContext, Context, Handler, Message, Recipient};
 use container::{ComponentSet, Container};
 use ctx::GameContext;
@@ -9,11 +5,15 @@ use model::player;
 use player::service::PlayerService;
 use protocol::buffer::StreamMessage;
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::sync::RwLock;
+use protocol::composer::handshake::availability_status_composer;
 
 pub struct Player {
-    game: Arc<GameContext>,
-    stream: Recipient<StreamMessage>,
-    inner: Arc<RwLock<player::Player>>,
+    pub inner: Arc<RwLock<player::Player>>,
+    pub stream: Recipient<StreamMessage>,
+    pub game: Arc<GameContext>,
     components: ComponentSet,
 }
 
@@ -40,6 +40,7 @@ impl Actor for Player {
 
             let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
                 auth_ok_composer(),
+                availability_status_composer(),
                 fuserights_composer(player.rank, true),
                 allowances_composer(),
                 motd_composer(format!("data: {:?}", player))

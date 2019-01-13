@@ -27,14 +27,10 @@ pub fn allowances_composer() -> Buffer {
         ("NAVIGATOR_ROOM_THUMBNAIL_CAMERA".to_string(), String::new(), true),
     ];
 
-    let mut buf = Buffer::empty(3189)
-        .write_i32(allowances.len() as i32);
-
-    for (key, s, enabled) in allowances {
-        buf = buf.write_str(&key)
-            .write_str(&s)
-            .write_bool(enabled);
-    }
-
-    buf
+    Buffer::empty(3189)
+        .write_vec(&allowances, |(key, s, enabled), buf|
+            buf
+                .write_str(&key)
+                .write_str(&s)
+                .write_bool(*enabled))
 }

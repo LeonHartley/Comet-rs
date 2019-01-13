@@ -1,12 +1,19 @@
+use player::messenger::PlayerFriend;
+use player::settings::{MessengerSettings, NavigatorSettings, PlayerSettings};
+
+pub mod messenger;
+pub mod settings;
+
 #[derive(Debug)]
 pub struct Player {
     pub avatar: PlayerAvatar,
-    pub friends: Vec<PlayerAvatar>,
+    pub friends: Vec<PlayerFriend>,
     pub rank: i16,
     pub achievement_points: i32,
     pub balance: PlayerBalance,
-}
+    pub settings: PlayerSettings,
 
+}
 
 #[derive(Debug)]
 pub struct PlayerAvatar {
@@ -57,6 +64,7 @@ impl Clone for Player {
             achievement_points: self.achievement_points,
             balance: self.balance.clone(),
             rank: self.rank,
+            settings: self.settings.clone(),
         }
     }
 }

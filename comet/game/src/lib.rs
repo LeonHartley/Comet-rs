@@ -10,6 +10,7 @@ pub mod player;
 pub mod navigator;
 pub mod ctx;
 pub mod container;
+pub mod room;
 
 #[cfg(test)]
 pub mod test;

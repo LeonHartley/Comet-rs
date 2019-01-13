@@ -30,7 +30,7 @@ pub struct ServerSession {
     pub db: Addr<DbContext>,
     pub game: Arc<GameContext>,
     pub stream: NetworkStream,
-    player: Option<PlayerContext>,
+    pub player: Option<PlayerContext>,
     handler: MessageHandler,
 }
 

@@ -13,3 +13,10 @@ pub fn motd_composer(motd: String) -> Buffer {
 pub fn auth_ok_composer() -> Buffer {
     Buffer::empty(3054)
 }
+
+pub fn availability_status_composer() -> Buffer {
+    Buffer::empty(1769)
+        .write_bool(false)
+        .write_bool(false)
+        .write_bool(true)
+}
