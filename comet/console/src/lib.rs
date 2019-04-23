@@ -89,6 +89,5 @@ pub fn console() {
         ),
     );
 
-    println!("this is run");
     let _ = system.run();
 }

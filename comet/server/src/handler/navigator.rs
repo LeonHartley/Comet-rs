@@ -1,11 +1,12 @@
 use protocol::buffer::{Buffer, StreamMessage};
 use session::ServerSession;
-use handler::req::navigator::RoomCategories;
 use actix::{Context, Addr, AsyncContext};
-use handler::req::navigator::InitialiseNavigator;
-use futures::sink::Sink;
 use game::navigator::service::NavigatorService;
-use protocol::composer::navigator::{room_categories_composer, navigator_metadata_composer, navigator_settings_composer};
+use protocol::composer::navigator::{
+    room_categories_composer,
+    navigator_metadata_composer,
+    navigator_settings_composer,
+};
 
 pub fn room_categories_handler(buf: &mut Buffer, session: &mut ServerSession, context: &mut Context<ServerSession>) {
     if let Some(ctx) = &session.player {

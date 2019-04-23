@@ -6,7 +6,6 @@ use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
 
-mod req;
 mod handshake;
 mod player;
 mod navigator;
