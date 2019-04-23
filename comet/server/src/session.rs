@@ -1,4 +1,5 @@
-use actix::{Actor, Addr, Context, Handler, io::FramedWrite, io::WriteHandler, prelude::*, StreamHandler};
+use actix::*;
+use actix::io::{FramedWrite, WriteHandler};
 use codec::{GameCodec, IncomingMessage};
 use core::Server;
 use db::ctx::DbContext;
@@ -8,7 +9,6 @@ use handler::MessageHandler;
 use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer;
 use std::{io, sync::Arc};
-use std::sync::Mutex;
 use std::sync::RwLock;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
@@ -113,6 +113,8 @@ impl Handler<StreamMessage> for ServerSession {
 
 impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
     fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
+        let handler = MessageHandler::new();
+
         match item {
             IncomingMessage::Policy => {
                 self.stream.write(composer::handshake::policy_file());
@@ -121,7 +123,7 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
 
             IncomingMessage::Event(buffers) => {
                 for mut buffer in buffers.into_iter() {
-                    self.handler.handle(buffer.id, &mut buffer, ctx.address());
+                    handler.handle(buffer.id, &mut buffer, self, ctx);
                 }
             }
         }

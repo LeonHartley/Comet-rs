@@ -9,6 +9,8 @@ use std::sync::RwLock;
 
 pub trait NavigatorService {
     fn get_room_categories(&self) -> Vec<Category>;
+
+//    fn get_navigator_categories(&self, view: String);
 }
 
 pub struct NavigatorServiceContext {

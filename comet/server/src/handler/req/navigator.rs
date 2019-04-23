@@ -6,32 +6,13 @@ use protocol::composer::navigator::navigator_metadata_composer;
 use protocol::composer::navigator::navigator_settings_composer;
 use protocol::composer::navigator::room_categories_composer;
 use session::ServerSession;
+use actix::fut::WrapFuture;
 
 #[derive(Message)]
 pub struct RoomCategories;
 
 #[derive(Message)]
 pub struct InitialiseNavigator;
-
-impl Handler<RoomCategories> for ServerSession {
-    type Result = ();
-
-    fn handle(&mut self, msg: RoomCategories, _: &mut Context<Self>) {
-        if let Some(ref ctx) = self.player {
-            ctx.addr.do_send(msg);
-        }
-    }
-}
-
-impl Handler<InitialiseNavigator> for ServerSession {
-    type Result = ();
-
-    fn handle(&mut self, msg: InitialiseNavigator, ctx: &mut Context<Self>) {
-        if let Some(ref ctx) = self.player {
-            ctx.addr.do_send(msg);
-        }
-    }
-}
 
 impl Handler<RoomCategories> for Player {
     type Result = ();

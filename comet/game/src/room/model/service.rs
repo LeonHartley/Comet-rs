@@ -12,7 +12,7 @@ use std::sync::RwLock;
 
 pub trait ModelService {
     fn get_room_model(&self, id: String) -> Option<Arc<RoomModel>>;
-    fn reload_models() {}
+    fn reload_models(&self) {}
 }
 
 pub struct ModelServiceContext {

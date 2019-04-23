@@ -2,8 +2,6 @@ use std::any::{Any, TypeId};
 use std::boxed::*;
 use std::collections::HashMap;
 use std::mem::transmute;
-use std::ops::Deref;
-use std::sync::Arc;
 
 pub type ComponentSet = HashMap<TypeId, Box<Any + Send + Sync>>;
 

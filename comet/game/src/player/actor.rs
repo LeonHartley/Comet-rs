@@ -23,12 +23,6 @@ impl Player {
     }
 }
 
-impl Container for Player {
-    fn components(&self) -> &ComponentSet { &self.components }
-
-    fn components_mut(&mut self) -> &mut ComponentSet { &mut self.components }
-}
-
 impl Actor for Player {
     type Context = Context<Self>;
 

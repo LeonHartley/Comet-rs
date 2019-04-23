@@ -11,6 +11,15 @@ pub enum CategoryViewMode {
     Thumbnail,
 }
 
+#[derive(Debug)]
+pub enum NavigatorView {
+    MyWorld,
+    Official,
+    Hotel,
+    Events,
+    Query
+}
+
 #[derive(Debug, PartialEq, Eq, Hash, Copy)]
 pub enum CategoryType {
     Category,

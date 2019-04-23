@@ -81,11 +81,14 @@ pub fn console() {
     let cloned_pool = pool.clone();
     let db = SyncArbiter::start(config.database.executors, move || DbContext(cloned_pool.clone()));
 
-    info!("typeid: {:?}", TypeId::of::<Logout>());
+    Server::start(
+        format!("{}:{}", config.game.host, config.game.port), db,
+        Arc::new(
+            GameContext::new()
+                .init(DbContext(pool.clone()))
+        ),
+    );
 
-    Server::new(&config.game)
-        .start(db, Arc::new(GameContext::new()
-            .init(DbContext(pool.clone()))));
-
+    println!("this is run");
     let _ = system.run();
 }

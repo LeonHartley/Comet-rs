@@ -1,11 +1,9 @@
 use actix::{Handler, Message};
 use actix::SyncContext;
 use ctx::DbContext;
-use model::player::{Player, PlayerAvatar, PlayerBalance};
-use model::player::messenger::PlayerFriend;
-use model::player::settings::MessengerSettings;
-use model::player::settings::NavigatorSettings;
-use model::player::settings::PlayerSettings;
+use model::player::*;
+use model::player::messenger::*;
+use model::player::settings::*;
 use mysql::{FromRowError, Row};
 use mysql::prelude::FromRow;
 use query::DbQueryExecutor;

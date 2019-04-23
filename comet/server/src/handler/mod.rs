@@ -1,4 +1,4 @@
-use actix::Addr;
+use actix::*;
 use protocol::buffer::Buffer;
 use session::ServerSession;
 use std::collections::HashMap;
@@ -17,7 +17,7 @@ lazy_static! {
     };
 }
 
-type HandlerFunc = Fn(&mut Buffer, Addr<ServerSession>);
+type HandlerFunc = Fn(&mut Buffer, &mut ServerSession, &mut Context<ServerSession>);
 type HandlerMap = HashMap<i16, Box<HandlerFunc>>;
 
 const CLIENT_VERSION_EVENT: i16 = 4000;
@@ -37,7 +37,8 @@ impl MessageHandler {
         }
     }
 
-    pub fn handle(&self, header: i16, buffer: &mut Buffer, session: Addr<ServerSession>) {
+    pub fn handle(&self, header: i16, buffer: &mut Buffer,
+                  session: &mut ServerSession, context: &mut Context<ServerSession>) {
         let handler = match self.handlers.get(&header) {
             Some(handler) => handler.as_ref(),
             None => {
@@ -51,7 +52,7 @@ impl MessageHandler {
         };
 
         let time = Instant::now();
-        handler(buffer, session);
+        handler(buffer, session, context);
         debug!("{} / {} event handled in {} ms ", match EVENT_NAMES.get(&header) {
             Some(h) => h.as_ref(),
             _ => "Unknown"

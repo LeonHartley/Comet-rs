@@ -1,8 +1,4 @@
-use actix::Actor;
-use actix::Addr;
-use actix::Context;
-use actix::prelude::*;
-use actix_web::actix;
+use actix::*;
 use codec::GameCodec;
 use core::Server;
 use db::ctx::DbContext;
