@@ -17,14 +17,6 @@ impl Handler<ClientVersionMessage> for ServerSession {
     }
 }
 
-//impl Handler<RoomCategoriesMessage> for game::player::Player {
-//    type Result = ();
-//
-//    fn handle(&mut self, message: RoomCategoriesMessage, ctx: &mut Context<Self>) {
-//        info!("received room categories message");
-//    }
-//}
-
 #[derive(Message)]
 pub struct AuthenticateMessage {
     pub ticket: Option<String>
