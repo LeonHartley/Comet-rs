@@ -5,22 +5,17 @@ use core::Server;
 use db::ctx::DbContext;
 use game::ctx::GameContext;
 use game::player::{Logout, Player};
-use handler::MessageHandler;
 use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer;
 use std::{io, sync::Arc};
 use std::sync::RwLock;
 use tokio_io::io::WriteHalf;
 use tokio_tcp::TcpStream;
+use handler::context::BufferParser;
 
 pub enum SessionStatus {
     Idle,
     Active,
-}
-
-pub struct PlayerContext {
-    pub addr: Addr<Player>,
-    pub data: Arc<RwLock<model::player::Player>>,
 }
 
 type NetworkStream = FramedWrite<WriteHalf<TcpStream>, GameCodec>;
@@ -30,8 +25,8 @@ pub struct ServerSession {
     pub db: Addr<DbContext>,
     pub game: Arc<GameContext>,
     pub stream: NetworkStream,
-    pub player: Option<PlayerContext>,
-    handler: MessageHandler,
+    pub player: Option<Addr<Player>>,
+//    handler: MessageHandler,
 }
 
 impl ServerSession {
@@ -41,7 +36,7 @@ impl ServerSession {
             db,
             game,
             stream,
-            handler: MessageHandler::new(),
+//            handler: MessageHandler::new(),
             player: None,
         }
     }
@@ -56,23 +51,16 @@ impl ServerSession {
         }
     }
 
-    pub fn player_actor(&self) -> Option<Addr<Player>> {
-        match self.player {
-            Some(ref ctx) => Some(ctx.addr.clone()),
-            None => None
-        }
-    }
-
-    pub fn player(&mut self) -> &Arc<RwLock<model::player::Player>> {
-        if let Some(ref ctx) = self.player {
-            &ctx.data
+    pub fn player(&mut self) -> Option<Addr<Player>> {
+        if let Some(player) = &self.player {
+            Some(player.clone())
         } else {
-            panic!("Player not initialised")
+            None
         }
     }
 
-    pub fn set_player(&mut self, ctx: PlayerContext) {
-        self.player = Some(ctx);
+    pub fn set_player(&mut self, player: Addr<Player>) {
+        self.player = Some(player);
     }
 
     pub fn status(&self) -> SessionStatus {
@@ -113,8 +101,6 @@ impl Handler<StreamMessage> for ServerSession {
 
 impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
     fn handle(&mut self, item: IncomingMessage, ctx: &mut Context<Self>) {
-        let handler = MessageHandler::new();
-
         match item {
             IncomingMessage::Policy => {
                 self.stream.write(composer::handshake::policy_file());
@@ -123,15 +109,15 @@ impl StreamHandler<IncomingMessage, io::Error> for ServerSession {
 
             IncomingMessage::Event(buffers) => {
                 for mut buffer in buffers.into_iter() {
-                    handler.handle(buffer.id, &mut buffer, self, ctx);
+                    self.parse(ctx.address(), &mut buffer);
                 }
             }
         }
     }
 
     fn finished(&mut self, ctx: &mut Self::Context) {
-        if let Some(ref ctx) = self.player {
-            ctx.addr.do_send(Logout)
+        if let Some(ref player) = self.player {
+            player.do_send(Logout)
         }
 
         ctx.stop();
