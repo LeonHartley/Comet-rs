@@ -7,8 +7,8 @@
 //use std::time::Instant;
 //
 //mod handshake;
-//mod player;
-//mod navigator;
+mod player;
+mod navigator;
 pub mod context;
 pub mod handshake;
 //

@@ -3,7 +3,7 @@ use container::{ComponentSet, Container};
 use ctx::GameContext;
 use model::player;
 use player::service::PlayerService;
-use protocol::buffer::StreamMessage;
+use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -21,6 +21,14 @@ impl Player {
     pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: player::Player) -> Player {
         Player { game, stream, inner, components: ComponentSet::new() }
     }
+
+    pub fn compose(&mut self, buffer: Buffer) {
+        self.stream.do_send(StreamMessage::Send(buffer));
+    }
+
+    pub fn compose_all(&mut self, buffers: Vec<Buffer>) {
+        self.stream.do_send(StreamMessage::BufferedSend(buffers));
+    }
 }
 
 impl Actor for Player {
@@ -29,15 +37,17 @@ impl Actor for Player {
     fn started(&mut self, ctx: &mut Self::Context) {
         info!("{} logged in", self.inner.avatar.name);
 
+        let motd = format!("data: {:?}", self.inner);
+        let rank = self.inner.rank;
         self.game.add_online_player(ctx.address(), self.inner.avatar.id, self.inner.avatar.name.clone());
 
-        let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
+        let _ = self.compose_all(vec![
             auth_ok_composer(),
             availability_status_composer(),
-            fuserights_composer(self.inner.rank, true),
+            fuserights_composer(rank, true),
             allowances_composer(),
-            motd_composer(format!("data: {:?}", self.inner))
-        ]));
+            motd_composer(motd)
+        ]);
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {

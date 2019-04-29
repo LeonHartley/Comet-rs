@@ -1,35 +1,33 @@
 use protocol::buffer::{Buffer, StreamMessage};
 use session::ServerSession;
-use actix::{Context, Addr, AsyncContext};
+use actix::{Context, Addr, AsyncContext, Handler, Message};
 use game::navigator::service::NavigatorService;
 use protocol::composer::navigator::{
     room_categories_composer,
     navigator_metadata_composer,
     navigator_settings_composer,
 };
+use handler::context::{RoomCategoriesMessage, InitNavigatorMessage};
+use game::player::Player;
 
-pub fn room_categories_handler(buf: &mut Buffer, session: &mut ServerSession, context: &mut Context<ServerSession>) {
-//    let data = match &session.player {
-//        Some(ctx) => match ctx.data.read() {
-//            Ok(data) => data.clone(),
-//            Err(_) => return
-//        },
-//        None => return
-//    };
-//
-//    let game = session.game.clone();
-//
-//    let _ = session.compose(
-//        room_categories_composer(game.get_room_categories(), data.rank));
+impl Handler<RoomCategoriesMessage> for Player {
+    type Result = ();
+
+    fn handle(&mut self, msg: RoomCategoriesMessage, ctx: &mut Context<Player>) {
+        let rank = self.inner.rank;
+        let categories = self.game.get_room_categories();
+
+        self.compose(room_categories_composer(categories, rank))
+    }
 }
 
+impl Handler<InitNavigatorMessage> for Player {
+    type Result = ();
 
-pub fn initialise_handler(buf: &mut Buffer, session: &mut ServerSession, context: &mut Context<ServerSession>) {
-//    if let Some(ctx) = &session.player {
-//        if let Ok(player) = ctx.data.read() {
-//            let _ = session.compose_all(vec![
-//                navigator_settings_composer(&player.settings.navigator),
-//                navigator_metadata_composer()]);
-//        }
-//    }
+    fn handle(&mut self, msg: InitNavigatorMessage, ctx: &mut Context<Player>) {
+        let settings = self.inner.settings.navigator.clone();
+        self.compose_all(vec![
+            navigator_settings_composer(settings),
+            navigator_metadata_composer()]);
+    }
 }
