@@ -5,6 +5,7 @@ extern crate db;
 extern crate log;
 extern crate model;
 extern crate protocol;
+extern crate serde;
 
 pub mod player;
 pub mod navigator;

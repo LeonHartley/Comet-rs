@@ -1,13 +1,33 @@
-use protocol::buffer::Buffer;
+use protocol::buffer::{Buffer, StreamMessage};
 use session::ServerSession;
-use handler::req::navigator::RoomCategories;
-use actix::Addr;
-use handler::req::navigator::InitialiseNavigator;
+use actix::{Context, Addr, AsyncContext, Handler, Message};
+use game::navigator::service::NavigatorService;
+use protocol::composer::navigator::{
+    room_categories_composer,
+    navigator_metadata_composer,
+    navigator_settings_composer,
+};
+use handler::context::{RoomCategoriesMessage, InitNavigatorMessage};
+use game::player::Player;
 
-pub fn room_categories_handler(buf: &mut Buffer, session: Addr<ServerSession>) {
-    session.do_send(RoomCategories);
+impl Handler<RoomCategoriesMessage> for Player {
+    type Result = ();
+
+    fn handle(&mut self, msg: RoomCategoriesMessage, ctx: &mut Context<Player>) {
+        let rank = self.inner.rank;
+        let categories = self.game.get_room_categories();
+
+        self.compose(room_categories_composer(categories, rank))
+    }
 }
 
-pub fn initialise_handler(buf: &mut Buffer, session: Addr<ServerSession>) {
-    session.do_send(InitialiseNavigator);
+impl Handler<InitNavigatorMessage> for Player {
+    type Result = ();
+
+    fn handle(&mut self, msg: InitNavigatorMessage, ctx: &mut Context<Player>) {
+        let settings = self.inner.settings.navigator.clone();
+        self.compose_all(vec![
+            navigator_settings_composer(settings),
+            navigator_metadata_composer()]);
+    }
 }

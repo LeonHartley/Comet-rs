@@ -12,7 +12,6 @@ pub struct Player {
     pub achievement_points: i32,
     pub balance: PlayerBalance,
     pub settings: PlayerSettings,
-
 }
 
 #[derive(Debug)]

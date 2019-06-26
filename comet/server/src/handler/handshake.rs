@@ -1,18 +1,44 @@
-use protocol::buffer::{Buffer};
+use protocol::buffer::{Buffer, StreamMessage};
 use session::ServerSession;
-use actix::Addr;
-use handler::req::login::AuthenticateRequest;
+use actix::*;
+use actix::fut::*;
+use std::sync::{Arc, RwLock};
+use game::player::Player;
+use db::query::player::PlayerByLoginTicket;
+use handler::context::AuthenticateMessage;
 
-pub fn client_version_handler(buf: &mut Buffer, _: Addr<ServerSession>) {
-    match buf.read_string() {
-        Some(s) => debug!("client version: {}", s),
-        _ => return
-    };
+
+impl Handler<AuthenticateMessage> for ServerSession {
+    type Result = ();
+
+    fn handle(&mut self, message: AuthenticateMessage, ctx: &mut Context<Self>) {
+        match message.ticket {
+            Some(ticket) => self.db
+                .send(PlayerByLoginTicket(ticket))
+                .into_actor(self)
+                .then(|res, act, ctx| {
+                    handle_authentication(res, act, ctx);
+                    ok(())
+                })
+                .spawn(ctx),
+            None => return
+        }
+    }
 }
 
-pub fn authentication_handler(buf: &mut Buffer, session: Addr<ServerSession>) {
-    session.do_send(AuthenticateRequest(match buf.read_string() {
-        Some(s) => s,
-        None => return
-    }));
+fn handle_authentication(
+    res: Result<Option<model::player::Player>, MailboxError>,
+    act: &mut ServerSession,
+    ctx: &mut Context<ServerSession>) {
+    match res.expect("error loading player") {
+        Some(p) => {
+            let game = act.game.clone();
+            let recipient = ctx.address().recipient::<StreamMessage>();
+
+            act.set_player(Player::create(move |_ctx| {
+                Player::new(game, recipient, p)
+            }))
+        }
+        None => act.stream.close()
+    }
 }

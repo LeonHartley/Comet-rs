@@ -5,3 +5,4 @@ extern crate model;
 
 pub mod buffer;
 pub mod composer;
+pub mod id;

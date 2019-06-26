@@ -20,7 +20,7 @@ pub fn home_room_composer(home_room: i64) -> Buffer {
         .write_i32(home_room as i32)
 }
 
-pub fn navigator_settings_composer(settings: &NavigatorSettings) -> Buffer {
+pub fn navigator_settings_composer(settings: NavigatorSettings) -> Buffer {
     Buffer::empty(2123)
         .write_i32(settings.x)
         .write_i32(settings.y)

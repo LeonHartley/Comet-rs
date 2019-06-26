@@ -3,7 +3,7 @@ use container::{ComponentSet, Container};
 use ctx::GameContext;
 use model::player;
 use player::service::PlayerService;
-use protocol::buffer::StreamMessage;
+use protocol::buffer::{Buffer, StreamMessage};
 use protocol::composer::{handshake::{auth_ok_composer, motd_composer}, player::rights::{allowances_composer, fuserights_composer}};
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -11,51 +11,51 @@ use std::sync::RwLock;
 use protocol::composer::handshake::availability_status_composer;
 
 pub struct Player {
-    pub inner: Arc<RwLock<player::Player>>,
+    pub inner: player::Player,
     pub stream: Recipient<StreamMessage>,
     pub game: Arc<GameContext>,
     components: ComponentSet,
 }
 
 impl Player {
-    pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: Arc<RwLock<player::Player>>) -> Player {
+    pub fn new(game: Arc<GameContext>, stream: Recipient<StreamMessage>, inner: player::Player) -> Player {
         Player { game, stream, inner, components: ComponentSet::new() }
     }
-}
 
-impl Container for Player {
-    fn components(&self) -> &ComponentSet { &self.components }
+    pub fn compose(&mut self, buffer: Buffer) {
+        self.stream.do_send(StreamMessage::Send(buffer));
+    }
 
-    fn components_mut(&mut self) -> &mut ComponentSet { &mut self.components }
+    pub fn compose_all(&mut self, buffers: Vec<Buffer>) {
+        self.stream.do_send(StreamMessage::BufferedSend(buffers));
+    }
 }
 
 impl Actor for Player {
     type Context = Context<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        if let Ok(player) = self.inner.read() {
-            info!("{} logged in", player.avatar.name);
+        info!("{} logged in", self.inner.avatar.name);
 
-            self.game.add_online_player(ctx.address(), player.avatar.id, player.avatar.name.clone());
+        let motd = format!("data: {:?}", self.inner);
+        let rank = self.inner.rank;
+        self.game.add_online_player(ctx.address(), self.inner.avatar.id, self.inner.avatar.name.clone());
 
-            let _ = self.stream.do_send(StreamMessage::BufferedSend(vec![
-                auth_ok_composer(),
-                availability_status_composer(),
-                fuserights_composer(player.rank, true),
-                allowances_composer(),
-                motd_composer(format!("data: {:?}", player))
-            ]));
-        }
+        let _ = self.compose_all(vec![
+            auth_ok_composer(),
+            availability_status_composer(),
+            fuserights_composer(rank, true),
+            allowances_composer(),
+            motd_composer(motd)
+        ]);
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
-        if let Ok(player) = self.inner.read() {
-            info!("{} logged out", player.avatar.name);
+        info!("{} logged out", self.inner.avatar.name);
 
-            self.game.remove_online_player(player.avatar.id, player.avatar.name.clone());
+        self.game.remove_online_player(self.inner.avatar.id, self.inner.avatar.name.clone());
 
-            // Distribute any messages to notify friends/rooms
-        }
+        // Distribute any messages to notify friends/rooms
     }
 }
 

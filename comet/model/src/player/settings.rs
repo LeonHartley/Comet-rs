@@ -24,6 +24,18 @@ pub struct NavigatorSettings {
     pub searches_visible: bool,
 }
 
+impl Clone for NavigatorSettings {
+    fn clone(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y,
+            width: self.width,
+            height: self.height,
+            searches_visible: self.searches_visible,
+        }
+    }
+}
+
 impl Clone for PlayerSettings {
     fn clone(&self) -> Self {
         Self {

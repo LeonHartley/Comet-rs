@@ -1,14 +1,14 @@
-use actix::{Actor, Addr, Arbiter, Context, msgs};
 use db::ctx::DbContext;
 use game::ctx::GameContext;
 use model::config::Game;
 use std::rc::Rc;
 use std::sync::Arc;
+use actix::*;
+
 use tcp::TcpServer;
 
 pub struct Server {
-    host: String,
-    port: i16,
+    address: String
 }
 
 impl Actor for Server {
@@ -16,23 +16,19 @@ impl Actor for Server {
 }
 
 impl Server {
-    pub fn new(config: &Game) -> Self {
-        Server {
-            host: config.host.clone(),
-            port: config.port,
+    fn new(address: String) -> Self {
+        Self {
+            address
         }
     }
 
-    pub fn start(&self, db: Addr<DbContext>, game: Arc<GameContext>) {
-        let host = self.host.clone();
-        let port = self.port;
-        let addr = format!("{}:{}", &host, port);
-
-        let server = Arbiter::start(move |_| Self { host, port });
-
-        Arbiter::new("tcp-server").do_send::<msgs::Execute>(msgs::Execute::new(move || {
-            TcpServer::new(addr, server, db, game);
-            Ok(())
-        }));
+    pub fn start(addr: String, db: Addr<DbContext>, game: Arc<GameContext>) {
+        let server = Server::new(addr.clone()).start();
+        TcpServer::new(addr, server, db, game);
+//        let server_addr = server.clone();
+//        Arbiter::new().exec(move || {
+//            println!("hmmm");
+//            Ok::<_, ()>(())
+//        });
     }
 }

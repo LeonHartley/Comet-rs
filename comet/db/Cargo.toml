@@ -5,7 +5,7 @@ authors = ["Leon Hartley <lhartley97@gmail.com>"]
 
 [dependencies]
 mysql = "15.0.0"
-actix = "0.7"
+actix = "0.8.1"
 log = "0.4.6"
 
 model = { path = "../model"}
