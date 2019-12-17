@@ -38,38 +38,43 @@ pub fn main() {
                 .value_name("CONFIG PROFILE")
                 .index(1)
                 .required(true),
-        ).get_matches();
+        )
+        .get_matches();
 
     let mut settings = config::Config::default();
 
     settings
-        .merge(config::File::with_name(matches.value_of("config_profile").unwrap()))
+        .merge(config::File::with_name(
+            matches.value_of("config_profile").unwrap(),
+        ))
         .unwrap();
 
-    let config = settings
-        .try_into::<Config>()
-        .unwrap();
+    let config = settings.try_into::<Config>().unwrap();
 
     let date_fmt = config.logging.date_fmt.clone();
 
     Builder::new()
         .format(move |buf, record| {
-            writeln!(buf,
-                     "{} [{}] {} - {}",
-                     Local::now().format(&date_fmt),
-                     record.level(),
-                     record.target(),
-                     record.args()
+            writeln!(
+                buf,
+                "{} [{}] {} - {}",
+                Local::now().format(&date_fmt),
+                record.level(),
+                record.target(),
+                record.args()
             )
         })
-        .filter(None, match config.logging.level.as_ref() {
-            "Info" => LevelFilter::Info,
-            "Error" => LevelFilter::Error,
-            "Debug" => LevelFilter::Debug,
-            "Warn" => LevelFilter::Warn,
+        .filter(
+            None,
+            match config.logging.level.as_ref() {
+                "Info" => LevelFilter::Info,
+                "Error" => LevelFilter::Error,
+                "Debug" => LevelFilter::Debug,
+                "Warn" => LevelFilter::Warn,
 
-            _ => LevelFilter::Trace
-        })
+                _ => LevelFilter::Trace,
+            },
+        )
         .init();
 
     info!("Comet is starting");
@@ -79,11 +84,14 @@ pub fn main() {
     let pool = Pool::new({ config.database.connection_string }).unwrap();
 
     let cloned_pool = pool.clone();
-    let db = SyncArbiter::start(config.database.executors, move || DbContext(cloned_pool.clone()));
+    let db = SyncArbiter::start(config.database.executors, move || {
+        DbContext(cloned_pool.clone())
+    });
 
-    Server::new(&config.game)
-        .start(db, Arc::new(GameContext::new()
-            .init(DbContext(pool.clone()))));
+    Server::new(&config.game).start(
+        db,
+        Arc::new(GameContext::new().init(DbContext(pool.clone()))),
+    );
 
     let _ = system.run();
 }
